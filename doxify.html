@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doxify</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background-color: #000;
+            color: #fff;
+            line-height: 1.4;
+            font-size: 14px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            border-bottom: 1px solid #333;
+            padding: 10px 0;
+            margin-bottom: 20px;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #fff;
+            text-decoration: none;
+        }
+
+        nav {
+            margin-top: 10px;
+        }
+
+        nav a {
+            color: #ccc;
+            text-decoration: none;
+            margin-right: 15px;
+        }
+
+        nav a:hover {
+            color: #fff;
+        }
+
+        .search-box {
+            margin: 20px 0;
+        }
+
+        .search-box input {
+            width: 300px;
+            padding: 8px;
+            background: #111;
+            border: 1px solid #333;
+            color: #fff;
+        }
+
+        .search-box button {
+            padding: 8px 15px;
+            background: #333;
+            border: 1px solid #333;
+            color: #fff;
+            cursor: pointer;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 8px 15px;
+            background: #333;
+            color: #fff;
+            text-decoration: none;
+            border: 1px solid #333;
+            margin: 10px 0;
+        }
+
+        .btn:hover {
+            background: #444;
+        }
+
+        .page-list {
+            margin: 20px 0;
+        }
+
+        .page-item {
+            border: 1px solid #333;
+            padding: 15px;
+            margin-bottom: 10px;
+            background: #111;
+        }
+
+        .page-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .page-id {
+            color: #888;
+            font-size: 12px;
+            margin-bottom: 8px;
+        }
+
+        .page-preview {
+            color: #ccc;
+            margin-bottom: 10px;
+            font-size: 13px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #ccc;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 8px;
+            background: #111;
+            border: 1px solid #333;
+            color: #fff;
+        }
+
+        .form-group textarea {
+            height: 300px;
+            resize: vertical;
+        }
+
+        .page-content {
+            white-space: pre-wrap;
+            background: #111;
+            padding: 20px;
+            border: 1px solid #333;
+            margin: 20px 0;
+        }
+
+        footer {
+            border-top: 1px solid #333;
+            padding: 20px 0;
+            margin-top: 40px;
+            color: #888;
+            font-size: 12px;
+        }
+
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <a href="#" class="logo">DOXIFY</a>
+            <nav>
+                <a href="#" id="home-link">Home</a>
+                <a href="#" id="write-link">Write Dox</a>
+                <a href="#" id="browse-link">Browse</a>
+            </nav>
+        </header>
+
+        <!-- Home Page -->
+        <div id="home-page" class="page active">
+            <div class="search-box">
+                <input type="text" id="search-input" placeholder="Search posts...">
+                <button id="search-button">Search</button>
+            </div>
+            
+            <a href="#" class="btn" id="write-dox-btn">Write Dox</a>
+
+            <div class="page-list" id="recent-pages">
+                <!-- Recent pages will appear here -->
+            </div>
+        </div>
+
+        <!-- Write Page -->
+        <div id="write-page" class="page">
+            <h2>Create New Dox</h2>
+            <form id="dox-form">
+                <div class="form-group">
+                    <label for="page-title">Title</label>
+                    <input type="text" id="page-title" required>
+                </div>
+                <div class="form-group">
+                    <label for="page-content">Content</label>
+                    <textarea id="page-content" required></textarea>
+                </div>
+                <button type="submit" class="btn">Save Dox</button>
+            </form>
+        </div>
+
+        <!-- Browse Page -->
+        <div id="browse-page" class="page">
+            <h2>All Pages</h2>
+            <div class="page-list" id="all-pages">
+                <!-- All pages will appear here -->
+            </div>
+        </div>
+
+        <!-- View Page -->
+        <div id="view-page" class="page">
+            <div id="page-content-container">
+                <!-- Page content will appear here -->
+            </div>
+        </div>
+
+        <footer>
+            Doxify - Anonymous text sharing platform
+        </footer>
+    </div>
+
+    <script>
+        // Database simulation using localStorage
+        const DB_KEY = 'doxify_pages';
+        
+        // Initialize database if it doesn't exist
+        function initDatabase() {
+            if (!localStorage.getItem(DB_KEY)) {
+                localStorage.setItem(DB_KEY, JSON.stringify([]));
+            }
+        }
+        
+        // Get all pages from database
+        function getAllPages() {
+            return JSON.parse(localStorage.getItem(DB_KEY) || '[]');
+        }
+        
+        // Save a new page to database
+        function savePage(title, content) {
+            const pages = getAllPages();
+            const slug = 'DOX' + Math.random().toString(36).substring(2, 10).toUpperCase();
+            const newPage = {
+                id: slug,
+                title: title,
+                content: content,
+                createdAt: new Date().toISOString()
+            };
+            
+            pages.push(newPage);
+            localStorage.setItem(DB_KEY, JSON.stringify(pages));
+            return newPage;
+        }
+        
+        // Get a page by ID
+        function getPageById(id) {
+            const pages = getAllPages();
+            return pages.find(page => page.id === id);
+        }
+        
+        // Search pages by keyword
+        function searchPages(keyword) {
+            const pages = getAllPages();
+            const lowerKeyword = keyword.toLowerCase();
+            return pages.filter(page => 
+                page.title.toLowerCase().includes(lowerKeyword) || 
+                page.content.toLowerCase().includes(lowerKeyword) ||
+                page.id.toLowerCase().includes(lowerKeyword)
+            );
+        }
+        
+        // Navigation functions
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            document.getElementById(pageId).classList.add('active');
+        }
+        
+        function showHomePage() {
+            showPage('home-page');
+            displayRecentPages();
+        }
+        
+        function showWritePage() {
+            showPage('write-page');
+            document.getElementById('page-title').value = '';
+            document.getElementById('page-content').value = '';
+        }
+        
+        function showBrowsePage() {
+            showPage('browse-page');
+            displayAllPages();
+        }
+        
+        function showViewPage(pageId) {
+            showPage('view-page');
+            displayPageContent(pageId);
+        }
+        
+        // Display functions
+        function displayRecentPages() {
+            const pages = getAllPages().slice(-10).reverse();
+            const container = document.getElementById('recent-pages');
+            container.innerHTML = '';
+            
+            if (pages.length === 0) {
+                container.innerHTML = '<p>No pages yet.</p>';
+                return;
+            }
+            
+            pages.forEach(page => {
+                const preview = page.content.length > 200 ? page.content.substring(0, 200) + '...' : page.content;
+                const pageElement = document.createElement('div');
+                pageElement.className = 'page-item';
+                pageElement.innerHTML = `
+                    <div class="page-title">${page.title}</div>
+                    <div class="page-id">${page.id}</div>
+                    <div class="page-preview">${preview}</div>
+                    <a href="#" class="view-page-link" data-id="${page.id}">View</a>
+                `;
+                container.appendChild(pageElement);
+            });
+            
+            // Add event listeners to view page links
+            document.querySelectorAll('.view-page-link').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    showViewPage(this.getAttribute('data-id'));
+                });
+            });
+        }
+        
+        function displayAllPages() {
+            const pages = getAllPages().reverse();
+            const container = document.getElementById('all-pages');
+            container.innerHTML = '';
+            
+            if (pages.length === 0) {
+                container.innerHTML = '<p>No pages yet.</p>';
+                return;
+            }
+            
+            pages.forEach(page => {
+                const preview = page.content.length > 200 ? page.content.substring(0, 200) + '...' : page.content;
+                const pageElement = document.createElement('div');
+                pageElement.className = 'page-item';
+                pageElement.innerHTML = `
+                    <div class="page-title">${page.title}</div>
+                    <div class="page-id">${page.id}</div>
+                    <div class="page-preview">${preview}</div>
+                    <a href="#" class="view-page-link" data-id="${page.id}">View</a>
+                `;
+                container.appendChild(pageElement);
+            });
+            
+            // Add event listeners to view page links
+            document.querySelectorAll('.view-page-link').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    showViewPage(this.getAttribute('data-id'));
+                });
+            });
+        }
+        
+        function displayPageContent(pageId) {
+            const page = getPageById(pageId);
+            const container = document.getElementById('page-content-container');
+            
+            if (!page) {
+                container.innerHTML = '<p>Page not found.</p>';
+                return;
+            }
+            
+            const date = new Date(page.createdAt).toLocaleDateString();
+            container.innerHTML = `
+                <h2>${page.title}</h2>
+                <div style="color: #888; margin: 10px 0;">ID: ${page.id} | ${date}</div>
+                <div class="page-content">${page.content}</div>
+                <a href="#" class="btn" id="back-to-browse">Back</a>
+            `;
+            
+            document.getElementById('back-to-browse').addEventListener('click', function(e) {
+                e.preventDefault();
+                showBrowsePage();
+            });
+        }
+        
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize database
+            initDatabase();
+            
+            // Set up navigation
+            document.getElementById('home-link').addEventListener('click', function(e) {
+                e.preventDefault();
+                showHomePage();
+            });
+            
+            document.getElementById('write-link').addEventListener('click', function(e) {
+                e.preventDefault();
+                showWritePage();
+            });
+            
+            document.getElementById('browse-link').addEventListener('click', function(e) {
+                e.preventDefault();
+                showBrowsePage();
+            });
+            
+            document.getElementById('write-dox-btn').addEventListener('click', function(e) {
+                e.preventDefault();
+                showWritePage();
+            });
+            
+            // Set up form submission
+            document.getElementById('dox-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const title = document.getElementById('page-title').value;
+                const content = document.getElementById('page-content').value;
+                
+                if (title.trim() === '' || content.trim() === '') {
+                    alert('Please fill in both title and content.');
+                    return;
+                }
+                
+                const newPage = savePage(title, content);
+                showViewPage(newPage.id);
+            });
+            
+            // Set up search
+            document.getElementById('search-button').addEventListener('click', function() {
+                const keyword = document.getElementById('search-input').value.trim();
+                
+                if (keyword === '') {
+                    showBrowsePage();
+                    return;
+                }
+                
+                const results = searchPages(keyword);
+                const container = document.getElementById('all-pages');
+                container.innerHTML = '';
+                
+                if (results.length === 0) {
+                    container.innerHTML = '<p>No results found.</p>';
+                    return;
+                }
+                
+                results.forEach(page => {
+                    const preview = page.content.length > 200 ? page.content.substring(0, 200) + '...' : page.content;
+                    const pageElement = document.createElement('div');
+                    pageElement.className = 'page-item';
+                    pageElement.innerHTML = `
+                        <div class="page-title">${page.title}</div>
+                        <div class="page-id">${page.id}</div>
+                        <div class="page-preview">${preview}</div>
+                        <a href="#" class="view-page-link" data-id="${page.id}">View</a>
+                    `;
+                    container.appendChild(pageElement);
+                });
+                
+                // Add event listeners to view page links
+                document.querySelectorAll('.view-page-link').forEach(link => {
+                    link.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        showViewPage(this.getAttribute('data-id'));
+                    });
+                });
+                
+                showBrowsePage();
+            });
+            
+            // Display recent pages on home page
+            displayRecentPages();
+        });
+    </script>
+</body>
+</html>
