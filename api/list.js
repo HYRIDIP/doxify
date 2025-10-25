@@ -1,28 +1,26 @@
-import { readdir, readFile } from 'fs/promises';
-import { join } from 'path';
+import { sql } from '@vercel/postgres';
 
 export default async function handler(req, res) {
   try {
-    const files = await readdir(join(process.cwd(), 'pages'));
-    const pages = [];
+    // Auto-create table if not exists
+    await sql`
+      CREATE TABLE IF NOT EXISTS pages (
+        slug VARCHAR(50) PRIMARY KEY,
+        title TEXT NOT NULL,
+        content TEXT NOT NULL,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+      )
+    `;
 
-    for (const file of files) {
-      if (file.endsWith('.json')) {
-        try {
-          const data = await readFile(join(process.cwd(), 'pages', file), 'utf8');
-          pages.push(JSON.parse(data));
-        } catch (error) {
-          console.error(`Error reading file ${file}:`, error);
-        }
-      }
-    }
+    const result = await sql`
+      SELECT * FROM pages 
+      ORDER BY created_at DESC 
+      LIMIT 20
+    `;
 
-    // Sort by creation date (newest first)
-    pages.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-
-    res.json(pages.slice(0, 20));
+    res.json(result.rows);
   } catch (error) {
-    // If pages directory doesn't exist, return empty array
+    console.error('Error listing pages:', error);
     res.json([]);
   }
 }
