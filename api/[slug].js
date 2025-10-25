@@ -1,15 +1,25 @@
 import { sql } from '@vercel/postgres';
 
 export default async function handler(req, res) {
-  // Получаем slug из query параметров
   const { slug } = req.query;
 
   console.log('Request received for slug:', slug);
-  console.log('Full query:', req.query);
-  console.log('URL:', req.url);
 
-  // Если slug undefined, показываем ошибку
-  if (!slug || slug === 'undefined') {
+  // Список системных маршрутов которые не должны обрабатываться здесь
+  const systemRoutes = [
+    'create', 'write', 'api', 'public', 'list', 'check-slug',
+    'favicon.ico', 'robots.txt', 'sitemap.xml'
+  ];
+
+  // Если это системный маршрут - редирект на главную
+  if (systemRoutes.includes(slug)) {
+    console.log('System route detected, redirecting to home:', slug);
+    return res.redirect('/');
+  }
+
+  // Если slug undefined или слишком короткий/длинный
+  if (!slug || slug.length < 3 || slug.length > 50) {
+    console.log('Invalid slug format:', slug);
     return res.status(400).send(`
 <!DOCTYPE html>
 <html>
@@ -22,7 +32,7 @@ export default async function handler(req, res) {
 </head>
 <body>
     <h1>Invalid Page URL</h1>
-    <p>Page URL is missing or invalid.</p>
+    <p>Page URL must be between 3 and 50 characters (letters, numbers, hyphens only).</p>
     <div style="margin: 20px 0;">
         <a href="/">← Back to Home</a>
         <a href="/write">Create New Page</a>
@@ -30,12 +40,6 @@ export default async function handler(req, res) {
 </body>
 </html>
     `);
-  }
-
-  // Skip system routes
-  const systemRoutes = ['create', 'write', 'api', 'public', 'list', 'check-slug'];
-  if (systemRoutes.includes(slug)) {
-    return res.redirect('/');
   }
 
   try {
