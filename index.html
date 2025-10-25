@@ -80,10 +80,17 @@
             text-decoration: none;
             border: 1px solid #333;
             margin: 10px 0;
+            cursor: pointer;
         }
 
         .btn:hover {
             background: #444;
+        }
+
+        .btn:disabled {
+            background: #222;
+            color: #666;
+            cursor: not-allowed;
         }
 
         .page-list {
@@ -146,6 +153,27 @@
             margin: 20px 0;
         }
 
+        .url-preview {
+            background: #111;
+            padding: 10px;
+            border: 1px solid #333;
+            margin: 10px 0;
+            font-family: monospace;
+            color: #0f0;
+        }
+
+        .error {
+            color: #f00;
+            margin: 5px 0;
+            font-size: 12px;
+        }
+
+        .success {
+            color: #0f0;
+            margin: 5px 0;
+            font-size: 12px;
+        }
+
         footer {
             border-top: 1px solid #333;
             padding: 20px 0;
@@ -193,6 +221,12 @@
             <h2>Create New Dox</h2>
             <form id="dox-form">
                 <div class="form-group">
+                    <label for="page-slug">Page URL (https://doxify.cc/<span id="slug-preview">your-page-name</span>)</label>
+                    <input type="text" id="page-slug" required placeholder="Enter page URL name (letters, numbers, hyphens only)">
+                    <div id="slug-error" class="error"></div>
+                    <div id="slug-success" class="success"></div>
+                </div>
+                <div class="form-group">
                     <label for="page-title">Title</label>
                     <input type="text" id="page-title" required>
                 </div>
@@ -200,7 +234,10 @@
                     <label for="page-content">Content</label>
                     <textarea id="page-content" required></textarea>
                 </div>
-                <button type="submit" class="btn">Save Dox</button>
+                <div class="url-preview" id="url-preview">
+                    URL: https://doxify.cc/<span id="final-slug">your-page-name</span>
+                </div>
+                <button type="submit" class="btn" id="submit-btn" disabled>Create Page</button>
             </form>
         </div>
 
@@ -220,7 +257,7 @@
         </div>
 
         <footer>
-            Doxify - Anonymous dox platform
+            Doxify - Anonymous text sharing platform
         </footer>
         <h5>administration - @skyhf</h5>
     </div>
@@ -241,12 +278,22 @@
             return JSON.parse(localStorage.getItem(DB_KEY) || '[]');
         }
         
-        // Save a new page to database
-        function savePage(title, content) {
+        // Check if slug already exists
+        function slugExists(slug) {
             const pages = getAllPages();
-            const slug = 'DOX' + Math.random().toString(36).substring(2, 10).toUpperCase();
+            return pages.some(page => page.slug === slug.toLowerCase());
+        }
+        
+        // Validate slug format
+        function isValidSlug(slug) {
+            return /^[a-zA-Z0-9-]+$/.test(slug) && slug.length >= 3 && slug.length <= 50;
+        }
+        
+        // Save a new page to database
+        function savePage(slug, title, content) {
+            const pages = getAllPages();
             const newPage = {
-                id: slug,
+                slug: slug.toLowerCase(),
                 title: title,
                 content: content,
                 createdAt: new Date().toISOString()
@@ -257,10 +304,10 @@
             return newPage;
         }
         
-        // Get a page by ID
-        function getPageById(id) {
+        // Get a page by slug
+        function getPageBySlug(slug) {
             const pages = getAllPages();
-            return pages.find(page => page.id === id);
+            return pages.find(page => page.slug === slug.toLowerCase());
         }
         
         // Search pages by keyword
@@ -270,7 +317,7 @@
             return pages.filter(page => 
                 page.title.toLowerCase().includes(lowerKeyword) || 
                 page.content.toLowerCase().includes(lowerKeyword) ||
-                page.id.toLowerCase().includes(lowerKeyword)
+                page.slug.toLowerCase().includes(lowerKeyword)
             );
         }
         
@@ -289,8 +336,13 @@
         
         function showWritePage() {
             showPage('write-page');
+            document.getElementById('page-slug').value = '';
             document.getElementById('page-title').value = '';
             document.getElementById('page-content').value = '';
+            document.getElementById('slug-error').textContent = '';
+            document.getElementById('slug-success').textContent = '';
+            document.getElementById('submit-btn').disabled = true;
+            updateSlugPreview();
         }
         
         function showBrowsePage() {
@@ -298,9 +350,50 @@
             displayAllPages();
         }
         
-        function showViewPage(pageId) {
+        function showViewPage(slug) {
             showPage('view-page');
-            displayPageContent(pageId);
+            displayPageContent(slug);
+        }
+        
+        // Update slug preview
+        function updateSlugPreview() {
+            const slugInput = document.getElementById('page-slug');
+            const slugPreview = document.getElementById('slug-preview');
+            const finalSlug = document.getElementById('final-slug');
+            const errorDiv = document.getElementById('slug-error');
+            const successDiv = document.getElementById('slug-success');
+            const submitBtn = document.getElementById('submit-btn');
+            
+            let slug = slugInput.value.trim().toLowerCase();
+            
+            if (slug === '') {
+                slugPreview.textContent = 'your-page-name';
+                finalSlug.textContent = 'your-page-name';
+                errorDiv.textContent = '';
+                successDiv.textContent = '';
+                submitBtn.disabled = true;
+                return;
+            }
+            
+            // Clean the slug
+            slug = slug.replace(/[^a-zA-Z0-9-]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+            
+            slugPreview.textContent = slug;
+            finalSlug.textContent = slug;
+            
+            if (!isValidSlug(slug)) {
+                errorDiv.textContent = 'URL name can only contain letters, numbers, and hyphens (3-50 characters)';
+                successDiv.textContent = '';
+                submitBtn.disabled = true;
+            } else if (slugExists(slug)) {
+                errorDiv.textContent = 'This URL name is already taken. Please choose a different one.';
+                successDiv.textContent = '';
+                submitBtn.disabled = true;
+            } else {
+                errorDiv.textContent = '';
+                successDiv.textContent = 'URL name is available!';
+                submitBtn.disabled = false;
+            }
         }
         
         // Display functions
@@ -320,9 +413,9 @@
                 pageElement.className = 'page-item';
                 pageElement.innerHTML = `
                     <div class="page-title">${page.title}</div>
-                    <div class="page-id">${page.id}</div>
+                    <div class="page-id">/${page.slug}</div>
                     <div class="page-preview">${preview}</div>
-                    <a href="#" class="view-page-link" data-id="${page.id}">View</a>
+                    <a href="#" class="view-page-link" data-slug="${page.slug}">View</a>
                 `;
                 container.appendChild(pageElement);
             });
@@ -331,7 +424,7 @@
             document.querySelectorAll('.view-page-link').forEach(link => {
                 link.addEventListener('click', function(e) {
                     e.preventDefault();
-                    showViewPage(this.getAttribute('data-id'));
+                    showViewPage(this.getAttribute('data-slug'));
                 });
             });
         }
@@ -352,9 +445,9 @@
                 pageElement.className = 'page-item';
                 pageElement.innerHTML = `
                     <div class="page-title">${page.title}</div>
-                    <div class="page-id">${page.id}</div>
+                    <div class="page-id">/${page.slug}</div>
                     <div class="page-preview">${preview}</div>
-                    <a href="#" class="view-page-link" data-id="${page.id}">View</a>
+                    <a href="#" class="view-page-link" data-slug="${page.slug}">View</a>
                 `;
                 container.appendChild(pageElement);
             });
@@ -363,13 +456,13 @@
             document.querySelectorAll('.view-page-link').forEach(link => {
                 link.addEventListener('click', function(e) {
                     e.preventDefault();
-                    showViewPage(this.getAttribute('data-id'));
+                    showViewPage(this.getAttribute('data-slug'));
                 });
             });
         }
         
-        function displayPageContent(pageId) {
-            const page = getPageById(pageId);
+        function displayPageContent(slug) {
+            const page = getPageBySlug(slug);
             const container = document.getElementById('page-content-container');
             
             if (!page) {
@@ -380,9 +473,12 @@
             const date = new Date(page.createdAt).toLocaleDateString();
             container.innerHTML = `
                 <h2>${page.title}</h2>
-                <div style="color: #888; margin: 10px 0;">ID: ${page.id} | ${date}</div>
+                <div style="color: #888; margin: 10px 0;">/${page.slug} | ${date}</div>
                 <div class="page-content">${page.content}</div>
-                <a href="#" class="btn" id="back-to-browse">Back</a>
+                <div style="margin: 20px 0; padding: 10px; background: #111; border: 1px solid #333;">
+                    <strong>Page URL:</strong> https://doxify.cc/${page.slug}
+                </div>
+                <a href="#" class="btn" id="back-to-browse">Back to Browse</a>
             `;
             
             document.getElementById('back-to-browse').addEventListener('click', function(e) {
@@ -417,20 +513,37 @@
                 showWritePage();
             });
             
+            // Set up slug validation
+            document.getElementById('page-slug').addEventListener('input', updateSlugPreview);
+            
             // Set up form submission
             document.getElementById('dox-form').addEventListener('submit', function(e) {
                 e.preventDefault();
                 
+                const slug = document.getElementById('page-slug').value.trim().toLowerCase();
                 const title = document.getElementById('page-title').value;
                 const content = document.getElementById('page-content').value;
+                
+                if (!isValidSlug(slug)) {
+                    alert('Please enter a valid URL name (letters, numbers, and hyphens only, 3-50 characters)');
+                    return;
+                }
+                
+                if (slugExists(slug)) {
+                    alert('This URL name is already taken. Please choose a different one.');
+                    return;
+                }
                 
                 if (title.trim() === '' || content.trim() === '') {
                     alert('Please fill in both title and content.');
                     return;
                 }
                 
-                const newPage = savePage(title, content);
-                showViewPage(newPage.id);
+                const newPage = savePage(slug, title, content);
+                showViewPage(newPage.slug);
+                
+                // Update URL in browser (without reloading)
+                window.history.pushState({}, '', `/${newPage.slug}`);
             });
             
             // Set up search
@@ -457,9 +570,9 @@
                     pageElement.className = 'page-item';
                     pageElement.innerHTML = `
                         <div class="page-title">${page.title}</div>
-                        <div class="page-id">${page.id}</div>
+                        <div class="page-id">/${page.slug}</div>
                         <div class="page-preview">${preview}</div>
-                        <a href="#" class="view-page-link" data-id="${page.id}">View</a>
+                        <a href="#" class="view-page-link" data-slug="${page.slug}">View</a>
                     `;
                     container.appendChild(pageElement);
                 });
@@ -468,12 +581,33 @@
                 document.querySelectorAll('.view-page-link').forEach(link => {
                     link.addEventListener('click', function(e) {
                         e.preventDefault();
-                        showViewPage(this.getAttribute('data-id'));
+                        showViewPage(this.getAttribute('data-slug'));
                     });
                 });
                 
                 showBrowsePage();
             });
+            
+            // Handle direct URL access
+            function handleDirectAccess() {
+                const path = window.location.pathname.substring(1); // Remove leading slash
+                if (path && path !== '') {
+                    const page = getPageBySlug(path);
+                    if (page) {
+                        showViewPage(path);
+                    } else {
+                        showHomePage();
+                    }
+                } else {
+                    showHomePage();
+                }
+            }
+            
+            // Listen for URL changes
+            window.addEventListener('popstate', handleDirectAccess);
+            
+            // Check initial URL
+            handleDirectAccess();
             
             // Display recent pages on home page
             displayRecentPages();
