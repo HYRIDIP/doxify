@@ -64,8 +64,6 @@ export default async function handler(req, res) {
 
   } catch (error) {
     console.error('Error checking slug:', error);
-    
-    // In case of error, assume slug is not available to prevent conflicts
     res.json({ 
       available: false,
       error: 'check_failed'
