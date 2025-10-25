@@ -21,7 +21,7 @@
       "dest": "/api/list.js"
     },
     {
-      "src": "/api/check-slug", 
+      "src": "/api/check-slug",
       "dest": "/api/check-slug.js"
     },
     {
