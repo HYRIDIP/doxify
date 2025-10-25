@@ -2,14 +2,13 @@ import { sql } from '@vercel/postgres';
 
 export default async function handler(req, res) {
   // Set CORS headers
-  res.setHeader('Access-Control-Allow-Credentials', true);
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
-  res.setHeader('Access-Control-Allow-Headers', 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
   // Handle OPTIONS request for CORS
   if (req.method === 'OPTIONS') {
-    return res.status(200).end();
+    return res.status(200).json({});
   }
 
   if (req.method !== 'GET') {
@@ -17,9 +16,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    console.log('Fetching pages list...');
-
-    // Auto-create table if not exists
+    // Create table if not exists
     await sql`
       CREATE TABLE IF NOT EXISTS pages (
         slug VARCHAR(50) PRIMARY KEY,
@@ -36,8 +33,6 @@ export default async function handler(req, res) {
       LIMIT 100
     `;
 
-    console.log(`Found ${result.rows.length} pages`);
-
     const pages = result.rows.map(page => ({
       slug: page.slug,
       title: page.title,
@@ -45,11 +40,10 @@ export default async function handler(req, res) {
       created_at: page.created_at
     }));
 
-    res.setHeader('Cache-Control', 'public, max-age=60');
-    res.json(pages);
+    return res.json(pages);
 
   } catch (error) {
     console.error('Error listing pages:', error);
-    res.json([]);
+    return res.json([]);
   }
 }
