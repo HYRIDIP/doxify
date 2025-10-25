@@ -9,7 +9,7 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Courier New', monospace;
+            font-family: Arial, sans-serif;
         }
 
         body {
@@ -22,35 +22,31 @@
         }
 
         .container {
-            max-width: 1000px;
+            max-width: 800px;
             margin: 0 auto;
         }
 
         header {
             border-bottom: 1px solid #333333;
-            padding: 20px 0;
-            margin-bottom: 30px;
+            padding: 10px 0;
+            margin-bottom: 20px;
         }
 
         .logo {
-            font-size: 32px;
+            font-size: 24px;
             font-weight: bold;
             color: #ffffff;
             text-decoration: none;
-            text-transform: uppercase;
-            letter-spacing: 2px;
         }
 
         nav {
-            margin-top: 15px;
+            margin-top: 10px;
         }
 
         nav a {
             color: #cccccc;
             text-decoration: none;
-            margin-right: 25px;
-            font-size: 16px;
-            transition: color 0.3s ease;
+            margin-right: 15px;
         }
 
         nav a:hover {
@@ -91,7 +87,6 @@
             border: 1px solid #333333;
             color: #ffffff;
             font-size: 14px;
-            font-family: 'Courier New', monospace;
             transition: border-color 0.3s ease;
         }
 
@@ -111,7 +106,7 @@
             border: 1px solid #333333;
             padding: 15px;
             margin: 20px 0;
-            font-family: 'Courier New', monospace;
+            font-family: monospace;
             color: #00ff00;
         }
 
@@ -141,7 +136,6 @@
             text-decoration: none;
             border: 1px solid #333333;
             font-size: 14px;
-            font-family: 'Courier New', monospace;
             transition: all 0.3s ease;
             cursor: pointer;
         }
@@ -177,6 +171,7 @@
             margin: 15px 0;
             border: 1px solid transparent;
             font-size: 14px;
+            display: none;
         }
 
         .status-error {
@@ -210,6 +205,20 @@
             margin-top: 5px;
         }
 
+        .slug-status {
+            margin-top: 8px;
+            font-size: 13px;
+            display: none;
+        }
+
+        .slug-error {
+            color: #ff6666;
+        }
+
+        .slug-success {
+            color: #66ff66;
+        }
+
         footer {
             margin-top: 50px;
             padding-top: 20px;
@@ -217,6 +226,19 @@
             color: #666666;
             font-size: 12px;
             text-align: center;
+        }
+
+        .debug-panel {
+            margin-top: 20px;
+            padding: 15px;
+            background: #222222;
+            border: 1px solid #333333;
+            font-size: 12px;
+        }
+
+        .debug-panel h4 {
+            margin-bottom: 10px;
+            color: #888888;
         }
 
         @media (max-width: 768px) {
@@ -242,7 +264,7 @@
 <body>
     <div class="container">
         <header>
-            <a href="/" class="logo">Doxify</a>
+            <a href="/" class="logo">DOXIFY</a>
             <nav>
                 <a href="/">Home</a>
                 <a href="/write">Write Dox</a>
@@ -262,7 +284,7 @@
                     <div class="form-hint">
                         Only letters, numbers, and hyphens allowed (3-50 characters). This will be part of your page URL.
                     </div>
-                    <div id="slugStatus" class="status-message" style="display: none;"></div>
+                    <div id="slugStatus" class="slug-status"></div>
                 </div>
                 
                 <div class="form-group">
@@ -277,7 +299,7 @@
                 <div class="form-group">
                     <label for="content" class="form-label">Page Content</label>
                     <textarea id="content" name="content" class="form-textarea" 
-                              required placeholder="Write your content here... Markdown and basic HTML are supported."></textarea>
+                              required placeholder="Write your content here..."></textarea>
                     <div class="character-count">
                         <span id="contentCount">0</span> characters
                     </div>
@@ -288,7 +310,7 @@
                     <div class="url-preview-value" id="urlPreview">https://doxify.vercel.app/your-page-name</div>
                 </div>
                 
-                <div id="formStatus" class="status-message" style="display: none;"></div>
+                <div id="formStatus" class="status-message"></div>
                 
                 <div class="button-group">
                     <button type="submit" class="btn btn-primary" id="submitBtn" disabled>
@@ -302,6 +324,17 @@
                     </button>
                 </div>
             </form>
+
+            <!-- Debug Panel -->
+            <div class="debug-panel">
+                <h4>Debug Tools</h4>
+                <button type="button" class="btn" onclick="testCreateAPI()" style="padding: 8px 15px; font-size: 12px;">
+                    Test API Connection
+                </button>
+                <button type="button" class="btn" onclick="checkCurrentSlug()" style="padding: 8px 15px; font-size: 12px; margin-left: 10px;">
+                    Check Current Slug
+                </button>
+            </div>
         </div>
 
         <footer>
@@ -310,285 +343,315 @@
         </footer>
     </div>
 
+    <script>
+        // DOM elements
+        const slugInput = document.getElementById('slug');
+        const titleInput = document.getElementById('title');
+        const contentInput = document.getElementById('content');
+        const urlPreview = document.getElementById('urlPreview');
+        const slugStatus = document.getElementById('slugStatus');
+        const formStatus = document.getElementById('formStatus');
+        const submitBtn = document.getElementById('submitBtn');
+        const titleCount = document.getElementById('titleCount');
+        const contentCount = document.getElementById('contentCount');
+        const form = document.getElementById('doxForm');
 
-<script>
-    const slugInput = document.getElementById('slug');
-    const titleInput = document.getElementById('title');
-    const contentInput = document.getElementById('content');
-    const urlPreview = document.getElementById('urlPreview');
-    const slugError = document.getElementById('slugError');
-    const slugSuccess = document.getElementById('slugSuccess');
-    const submitBtn = document.getElementById('submitBtn');
-    const titleCount = document.getElementById('titleCount');
-    const contentCount = document.getElementById('contentCount');
-    const formStatus = document.getElementById('formStatus');
-    const form = document.getElementById('doxForm');
+        let slugCheckTimeout = null;
+        let isSlugAvailable = false;
 
-    let slugCheckTimeout = null;
-    let isSlugAvailable = false;
-
-    function updateUrlPreview() {
-        const slug = slugInput.value.trim().toLowerCase().replace(/[^a-z0-9-]/g, '-');
-        const host = window.location.host;
-        urlPreview.textContent = `https://${host}/${slug || 'your-page-name'}`;
-    }
-
-    function validateSlug(slug) {
-        if (slug.length < 3) {
-            return { valid: false, message: 'URL name must be at least 3 characters' };
-        }
-        if (slug.length > 50) {
-            return { valid: false, message: 'URL name must be less than 50 characters' };
-        }
-        if (!/^[a-zA-Z0-9-]+$/.test(slug)) {
-            return { valid: false, message: 'Only letters, numbers, and hyphens allowed' };
-        }
-        if (/^-|-$/.test(slug)) {
-            return { valid: false, message: 'URL name cannot start or end with a hyphen' };
-        }
-        return { valid: true, message: '' };
-    }
-
-    async function checkSlugAvailability(slug) {
-        try {
-            const response = await fetch(`/api/check-slug?slug=${encodeURIComponent(slug)}`);
-            if (!response.ok) {
-                throw new Error('Network error');
+        // Initialize when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded, initializing form...');
+            updateUrlPreview();
+            updateCharacterCounts();
+            updateSubmitButton();
+            
+            // Check for URL parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            const suggestedSlug = urlParams.get('slug');
+            if (suggestedSlug) {
+                slugInput.value = suggestedSlug;
+                onSlugInput();
             }
-            const result = await response.json();
-            return result.available;
-        } catch (error) {
-            console.error('Error checking slug:', error);
-            return false;
-        }
-    }
+        });
 
-    function updateSlugStatus(message, type) {
-        slugError.textContent = message;
-        slugError.className = 'error';
-        slugError.style.display = 'block';
-        slugSuccess.style.display = 'none';
-        
-        if (type === 'success') {
-            slugError.style.display = 'none';
-            slugSuccess.textContent = message;
-            slugSuccess.className = 'success';
-            slugSuccess.style.display = 'block';
-        }
-    }
-
-    function hideSlugStatus() {
-        slugError.style.display = 'none';
-        slugSuccess.style.display = 'none';
-    }
-
-    async function onSlugInput() {
-        const slug = slugInput.value.trim().toLowerCase().replace(/[^a-z0-9-]/g, '-');
-        updateUrlPreview();
-        
-        if (slugCheckTimeout) {
-            clearTimeout(slugCheckTimeout);
-        }
-        
-        if (slug.length === 0) {
-            hideSlugStatus();
-            submitBtn.disabled = true;
-            isSlugAvailable = false;
-            return;
-        }
-        
-        const validation = validateSlug(slug);
-        if (!validation.valid) {
-            updateSlugStatus(validation.message, 'error');
-            submitBtn.disabled = true;
-            isSlugAvailable = false;
-            return;
-        }
-        
-        updateSlugStatus('Checking availability...', 'info');
-        submitBtn.disabled = true;
-        
-        slugCheckTimeout = setTimeout(async () => {
-            const available = await checkSlugAvailability(slug);
-            isSlugAvailable = available;
-            
-            if (available) {
-                updateSlugStatus('✓ URL name is available!', 'success');
-                updateSubmitButton();
-            } else {
-                updateSlugStatus('✗ This URL name is already taken', 'error');
-                submitBtn.disabled = true;
+        function updateUrlPreview() {
+            const slug = slugInput.value.trim().toLowerCase().replace(/[^a-z0-9-]/g, '-');
+            const host = window.location.host;
+            if (urlPreview) {
+                urlPreview.textContent = `https://${host}/${slug || 'your-page-name'}`;
             }
-        }, 500);
-    }
-
-    function updateCharacterCounts() {
-        titleCount.textContent = titleInput.value.length;
-        contentCount.textContent = contentInput.value.length;
-    }
-
-    function updateSubmitButton() {
-        const hasTitle = titleInput.value.trim().length > 0;
-        const hasContent = contentInput.value.trim().length > 0;
-        const titleValid = titleInput.value.length <= 200;
-        
-        submitBtn.disabled = !(isSlugAvailable && hasTitle && hasContent && titleValid);
-    }
-
-    function showFormStatus(message, type) {
-        formStatus.textContent = message;
-        formStatus.className = 'status-message';
-        formStatus.style.display = 'block';
-        
-        if (type === 'error') {
-            formStatus.classList.add('status-error');
-        } else if (type === 'success') {
-            formStatus.classList.add('status-success');
-        } else if (type === 'info') {
-            formStatus.classList.add('status-info');
-        }
-    }
-
-    function hideFormStatus() {
-        formStatus.style.display = 'none';
-    }
-
-    async function submitForm(event) {
-        event.preventDefault();
-        
-        const formData = new FormData(form);
-        const data = {
-            slug: formData.get('slug').trim().toLowerCase().replace(/[^a-z0-9-]/g, '-'),
-            title: formData.get('title').trim(),
-            content: formData.get('content').trim()
-        };
-
-        // Final validation
-        const slugValidation = validateSlug(data.slug);
-        if (!slugValidation.valid) {
-            showFormStatus(slugValidation.message, 'error');
-            return;
         }
 
-        if (data.title.length === 0) {
-            showFormStatus('Please enter a title', 'error');
-            return;
+        function validateSlug(slug) {
+            if (slug.length < 3) {
+                return { valid: false, message: 'URL name must be at least 3 characters' };
+            }
+            if (slug.length > 50) {
+                return { valid: false, message: 'URL name must be less than 50 characters' };
+            }
+            if (!/^[a-zA-Z0-9-]+$/.test(slug)) {
+                return { valid: false, message: 'Only letters, numbers, and hyphens allowed' };
+            }
+            if (/^-|-$/.test(slug)) {
+                return { valid: false, message: 'URL name cannot start or end with a hyphen' };
+            }
+            return { valid: true, message: '' };
         }
 
-        if (data.content.length === 0) {
-            showFormStatus('Please enter content', 'error');
-            return;
-        }
-
-        submitBtn.disabled = true;
-        submitBtn.textContent = 'Creating Page...';
-        hideFormStatus();
-
-        try {
-            console.log('Sending request to create page:', data);
-            
-            const response = await fetch('/api/create', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(data)
-            });
-
-            console.log('Response status:', response.status);
-            
-            let result;
+        async function checkSlugAvailability(slug) {
             try {
-                result = await response.json();
-                console.log('Response data:', result);
-            } catch (jsonError) {
-                console.error('JSON parse error:', jsonError);
-                throw new Error('Invalid response from server');
+                const response = await fetch(`/api/check-slug?slug=${encodeURIComponent(slug)}`);
+                if (!response.ok) {
+                    throw new Error('Network error');
+                }
+                const result = await response.json();
+                return result.available;
+            } catch (error) {
+                console.error('Error checking slug:', error);
+                return false;
             }
-
-            if (response.ok && result.success) {
-                showFormStatus('✓ Page created successfully! Redirecting...', 'success');
-                setTimeout(() => {
-                    window.location.href = `/${result.slug}`;
-                }, 1500);
-            } else {
-                const errorMessage = result.error || `Server error: ${response.status}`;
-                showFormStatus('✗ ' + errorMessage, 'error');
-                submitBtn.disabled = false;
-                submitBtn.textContent = 'Create Page';
-            }
-        } catch (error) {
-            console.error('Network error:', error);
-            showFormStatus('✗ Network error: ' + error.message, 'error');
-            submitBtn.disabled = false;
-            submitBtn.textContent = 'Create Page';
         }
-    }
 
-    function clearForm() {
-        form.reset();
-        hideSlugStatus();
-        hideFormStatus();
-        updateUrlPreview();
-        updateCharacterCounts();
-        updateSubmitButton();
-        slugInput.focus();
-    }
-
-    // Event listeners
-    slugInput.addEventListener('input', onSlugInput);
-    titleInput.addEventListener('input', () => {
-        updateCharacterCounts();
-        updateSubmitButton();
-    });
-    contentInput.addEventListener('input', () => {
-        updateCharacterCounts();
-        updateSubmitButton();
-    });
-    form.addEventListener('submit', submitForm);
-
-    // Initialize
-    updateUrlPreview();
-    updateCharacterCounts();
-    updateSubmitButton();
-
-    // Check for URL parameters
-    const urlParams = new URLSearchParams(window.location.search);
-    const suggestedSlug = urlParams.get('slug');
-    if (suggestedSlug) {
-        slugInput.value = suggestedSlug;
-        onSlugInput();
-    }
-
-    // Добавляем функцию для тестирования API
-    window.testCreateAPI = async function() {
-        const testData = {
-            slug: 'test-page-' + Date.now(),
-            title: 'Test Page',
-            content: 'This is a test page'
-        };
-        
-        console.log('Testing API with:', testData);
-        
-        try {
-            const response = await fetch('/api/create', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(testData)
-            });
+        function updateSlugStatus(message, type) {
+            if (!slugStatus) return;
             
-            const result = await response.json();
-            console.log('Test result:', result);
-            alert('Test result: ' + JSON.stringify(result, null, 2));
-        } catch (error) {
-            console.error('Test failed:', error);
-            alert('Test failed: ' + error.message);
+            slugStatus.textContent = message;
+            slugStatus.className = 'slug-status';
+            slugStatus.style.display = 'block';
+            
+            if (type === 'error') {
+                slugStatus.classList.add('slug-error');
+            } else if (type === 'success') {
+                slugStatus.classList.add('slug-success');
+            }
         }
-    };
-</script>
-    
+
+        function hideSlugStatus() {
+            if (slugStatus) {
+                slugStatus.style.display = 'none';
+            }
+        }
+
+        async function onSlugInput() {
+            const slug = slugInput.value.trim().toLowerCase().replace(/[^a-z0-9-]/g, '-');
+            updateUrlPreview();
+            
+            if (slugCheckTimeout) {
+                clearTimeout(slugCheckTimeout);
+            }
+            
+            if (slug.length === 0) {
+                hideSlugStatus();
+                submitBtn.disabled = true;
+                isSlugAvailable = false;
+                return;
+            }
+            
+            const validation = validateSlug(slug);
+            if (!validation.valid) {
+                updateSlugStatus(validation.message, 'error');
+                submitBtn.disabled = true;
+                isSlugAvailable = false;
+                return;
+            }
+            
+            updateSlugStatus('Checking availability...', 'info');
+            submitBtn.disabled = true;
+            
+            slugCheckTimeout = setTimeout(async () => {
+                const available = await checkSlugAvailability(slug);
+                isSlugAvailable = available;
+                
+                if (available) {
+                    updateSlugStatus('✓ URL name is available!', 'success');
+                    updateSubmitButton();
+                } else {
+                    updateSlugStatus('✗ This URL name is already taken', 'error');
+                    submitBtn.disabled = true;
+                }
+            }, 500);
+        }
+
+        function updateCharacterCounts() {
+            if (titleCount) titleCount.textContent = titleInput.value.length;
+            if (contentCount) contentCount.textContent = contentInput.value.length;
+        }
+
+        function updateSubmitButton() {
+            const hasTitle = titleInput.value.trim().length > 0;
+            const hasContent = contentInput.value.trim().length > 0;
+            const titleValid = titleInput.value.length <= 200;
+            
+            if (submitBtn) {
+                submitBtn.disabled = !(isSlugAvailable && hasTitle && hasContent && titleValid);
+            }
+        }
+
+        function showFormStatus(message, type) {
+            if (!formStatus) return;
+            
+            formStatus.textContent = message;
+            formStatus.className = 'status-message';
+            formStatus.style.display = 'block';
+            
+            if (type === 'error') {
+                formStatus.classList.add('status-error');
+            } else if (type === 'success') {
+                formStatus.classList.add('status-success');
+            } else if (type === 'info') {
+                formStatus.classList.add('status-info');
+            }
+        }
+
+        function hideFormStatus() {
+            if (formStatus) {
+                formStatus.style.display = 'none';
+            }
+        }
+
+        async function submitForm(event) {
+            event.preventDefault();
+            
+            const formData = new FormData(form);
+            const data = {
+                slug: formData.get('slug').trim().toLowerCase().replace(/[^a-z0-9-]/g, '-'),
+                title: formData.get('title').trim(),
+                content: formData.get('content').trim()
+            };
+
+            // Final validation
+            const slugValidation = validateSlug(data.slug);
+            if (!slugValidation.valid) {
+                showFormStatus(slugValidation.message, 'error');
+                return;
+            }
+
+            if (data.title.length === 0) {
+                showFormStatus('Please enter a title', 'error');
+                return;
+            }
+
+            if (data.content.length === 0) {
+                showFormStatus('Please enter content', 'error');
+                return;
+            }
+
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Creating Page...';
+            }
+            hideFormStatus();
+
+            try {
+                console.log('Sending request to create page:', data);
+                
+                const response = await fetch('/api/create', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                console.log('Response status:', response.status);
+                
+                let result;
+                try {
+                    result = await response.json();
+                    console.log('Response data:', result);
+                } catch (jsonError) {
+                    console.error('JSON parse error:', jsonError);
+                    throw new Error('Invalid response from server');
+                }
+
+                if (response.ok && result.success) {
+                    showFormStatus('✓ Page created successfully! Redirecting...', 'success');
+                    setTimeout(() => {
+                        window.location.href = `/${result.slug}`;
+                    }, 1500);
+                } else {
+                    const errorMessage = result.error || `Server error: ${response.status}`;
+                    showFormStatus('✗ ' + errorMessage, 'error');
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = 'Create Page';
+                    }
+                }
+            } catch (error) {
+                console.error('Network error:', error);
+                showFormStatus('✗ Network error: ' + error.message, 'error');
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Create Page';
+                }
+            }
+        }
+
+        function clearForm() {
+            form.reset();
+            hideSlugStatus();
+            hideFormStatus();
+            updateUrlPreview();
+            updateCharacterCounts();
+            updateSubmitButton();
+            slugInput.focus();
+        }
+
+        // Debug functions
+        async function testCreateAPI() {
+            const testData = {
+                slug: 'test-page-' + Date.now(),
+                title: 'Test Page',
+                content: 'This is a test page created via debug tool.'
+            };
+            
+            console.log('Testing API with:', testData);
+            
+            try {
+                const response = await fetch('/api/create', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(testData)
+                });
+                
+                const result = await response.json();
+                console.log('Test result:', result);
+                alert('Test result: ' + JSON.stringify(result, null, 2));
+            } catch (error) {
+                console.error('Test failed:', error);
+                alert('Test failed: ' + error.message);
+            }
+        }
+
+        async function checkCurrentSlug() {
+            const slug = slugInput.value.trim();
+            if (!slug) {
+                alert('Please enter a slug first');
+                return;
+            }
+            
+            try {
+                const available = await checkSlugAvailability(slug);
+                alert(`Slug "${slug}" is ${available ? 'available' : 'taken'}`);
+            } catch (error) {
+                alert('Error checking slug: ' + error.message);
+            }
+        }
+
+        // Event listeners
+        if (slugInput) slugInput.addEventListener('input', onSlugInput);
+        if (titleInput) titleInput.addEventListener('input', () => {
+            updateCharacterCounts();
+            updateSubmitButton();
+        });
+        if (contentInput) contentInput.addEventListener('input', () => {
+            updateCharacterCounts();
+            updateSubmitButton();
+        });
+        if (form) form.addEventListener('submit', submitForm);
+    </script>
 </body>
 </html>
-
