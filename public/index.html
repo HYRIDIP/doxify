@@ -1,427 +1,65 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
+    <title>Doxify</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Doxify - Anonymous Text Sharing</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Courier New', monospace;
-        }
-
-        body {
-            background-color: #000000;
-            color: #ffffff;
-            line-height: 1.6;
-            font-size: 14px;
-            padding: 20px;
-            min-height: 100vh;
-        }
-
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-        }
-
-        header {
-            border-bottom: 1px solid #333333;
-            padding: 20px 0;
-            margin-bottom: 30px;
-        }
-
-        .logo {
-            font-size: 32px;
-            font-weight: bold;
-            color: #ffffff;
-            text-decoration: none;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-        }
-
-        nav {
-            margin-top: 15px;
-        }
-
-        nav a {
-            color: #cccccc;
-            text-decoration: none;
-            margin-right: 25px;
-            font-size: 16px;
-            transition: color 0.3s ease;
-        }
-
-        nav a:hover {
-            color: #ffffff;
-        }
-
-        .search-container {
-            margin: 30px 0;
-            padding: 20px;
-            background: #111111;
-            border: 1px solid #333333;
-        }
-
-        .search-box {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
-
-        .search-input {
-            flex: 1;
-            padding: 12px 15px;
-            background: #000000;
-            border: 1px solid #333333;
-            color: #ffffff;
-            font-size: 14px;
-            font-family: 'Courier New', monospace;
-        }
-
-        .search-input:focus {
-            outline: none;
-            border-color: #666666;
-        }
-
-        .search-button {
-            padding: 12px 25px;
-            background: #333333;
-            border: 1px solid #333333;
-            color: #ffffff;
-            cursor: pointer;
-            font-size: 14px;
-            font-family: 'Courier New', monospace;
-            transition: background-color 0.3s ease;
-        }
-
-        .search-button:hover {
-            background: #444444;
-        }
-
-        .action-buttons {
-            margin: 25px 0;
-            display: flex;
-            gap: 15px;
-        }
-
-        .btn {
-            display: inline-block;
-            padding: 12px 30px;
-            background: #333333;
-            color: #ffffff;
-            text-decoration: none;
-            border: 1px solid #333333;
-            font-size: 14px;
-            font-family: 'Courier New', monospace;
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-
-        .btn:hover {
-            background: #444444;
-            border-color: #555555;
-        }
-
-        .btn-primary {
-            background: #222222;
-            border-color: #ffffff;
-        }
-
-        .btn-primary:hover {
-            background: #333333;
-        }
-
-        .content-section {
-            margin: 30px 0;
-        }
-
-        .section-title {
-            font-size: 20px;
-            margin-bottom: 20px;
-            color: #ffffff;
-            border-bottom: 1px solid #333333;
-            padding-bottom: 10px;
-        }
-
-        .page-list {
-            display: grid;
-            gap: 15px;
-        }
-
-        .page-item {
-            border: 1px solid #333333;
-            padding: 20px;
-            background: #111111;
-            transition: border-color 0.3s ease;
-        }
-
-        .page-item:hover {
-            border-color: #555555;
-        }
-
-        .page-title {
-            font-size: 18px;
-            font-weight: bold;
-            margin-bottom: 8px;
-            color: #ffffff;
-        }
-
-        .page-title a {
-            color: #ffffff;
-            text-decoration: none;
-        }
-
-        .page-title a:hover {
-            text-decoration: underline;
-        }
-
-        .page-meta {
-            color: #888888;
-            font-size: 12px;
-            margin-bottom: 12px;
-            display: flex;
-            gap: 15px;
-        }
-
-        .page-slug {
-            font-family: 'Courier New', monospace;
-        }
-
-        .page-date {
-            color: #666666;
-        }
-
-        .page-preview {
-            color: #cccccc;
-            line-height: 1.5;
-            margin-bottom: 15px;
-            font-size: 14px;
-        }
-
-        .page-actions {
-            display: flex;
-            gap: 10px;
-        }
-
-        .page-link {
-            color: #888888;
-            text-decoration: none;
-            font-size: 12px;
-            transition: color 0.3s ease;
-        }
-
-        .page-link:hover {
-            color: #ffffff;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 40px 20px;
-            color: #666666;
-            border: 1px solid #333333;
-            background: #111111;
-        }
-
-        .empty-state a {
-            color: #888888;
-            text-decoration: none;
-        }
-
-        .empty-state a:hover {
-            color: #ffffff;
-            text-decoration: underline;
-        }
-
-        footer {
-            margin-top: 50px;
-            padding-top: 20px;
-            border-top: 1px solid #333333;
-            color: #666666;
-            font-size: 12px;
-            text-align: center;
-        }
-
-        .error-message {
-            background: #330000;
-            border: 1px solid #660000;
-            color: #ff6666;
-            padding: 15px;
-            margin: 20px 0;
-            font-size: 14px;
-        }
-
-        @media (max-width: 768px) {
-            .container {
-                padding: 0 10px;
-            }
-            
-            nav a {
-                margin-right: 15px;
-                font-size: 14px;
-            }
-            
-            .search-box {
-                flex-direction: column;
-            }
-            
-            .action-buttons {
-                flex-direction: column;
-            }
-        }
+        *{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif;}
+        body{background:#000;color:#fff;padding:20px;}
+        .container{max-width:800px;margin:0 auto;}
+        header{border-bottom:1px solid #333;padding:10px 0;margin-bottom:20px;}
+        .logo{font-size:24px;font-weight:bold;color:#fff;text-decoration:none;}
+        nav a{color:#ccc;text-decoration:none;margin-right:15px;}
+        .btn{padding:8px 15px;background:#333;color:#fff;text-decoration:none;border:1px solid #333;display:inline-block;margin:10px 0;}
+        .page-item{border:1px solid #333;padding:15px;margin-bottom:10px;background:#111;}
+        .page-title{font-weight:bold;margin-bottom:5px;}
+        .page-id{color:#888;font-size:12px;margin-bottom:8px;}
+        .page-preview{color:#ccc;margin-bottom:10px;}
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <a href="/" class="logo">Doxify</a>
+            <a href="/" class="logo">DOXIFY</a>
             <nav>
                 <a href="/">Home</a>
-                <a href="/write">Write Dox</a>
-                <a href="/" onclick="clearSearch()">Clear Search</a>
+                <a href="/write">Write</a>
             </nav>
         </header>
 
-        <div class="search-container">
-            <div class="search-box">
-                <input type="text" id="searchInput" class="search-input" placeholder="Search through all posts...">
-                <button type="button" class="search-button" onclick="performSearch()">Search Posts</button>
-            </div>
-        </div>
-
-        <div class="action-buttons">
-            <a href="/write" class="btn btn-primary">Create New Dox</a>
-            <a href="/" class="btn">Refresh List</a>
-        </div>
-
-        <div class="content-section">
-            <h2 class="section-title" id="sectionTitle">Recent Pages</h2>
-            <div class="page-list" id="pagesContainer">
-                <div class="empty-state">
-                    Loading pages...
-                </div>
-            </div>
-        </div>
-
-        <footer>
-            Doxify - Anonymous Text Sharing Platform<br>
-            All content is user-generated and anonymous
-        </footer>
+        <a href="/write" class="btn">Create Page</a>
+        <div id="pagesContainer">Loading...</div>
     </div>
 
     <script>
-        let allPages = [];
-        let currentSearch = '';
-
         async function loadPages() {
             try {
                 const response = await fetch('/api/list');
-                if (!response.ok) {
-                    throw new Error('Failed to load pages');
-                }
-                allPages = await response.json();
-                displayPages(allPages);
-            } catch (error) {
-                console.error('Error loading pages:', error);
-                document.getElementById('pagesContainer').innerHTML = `
-                    <div class="error-message">
-                        Error loading pages: ${error.message}
-                    </div>
-                `;
+                const pages = await response.json();
+                displayPages(pages);
+            } catch {
+                document.getElementById('pagesContainer').innerHTML = 'Error loading pages';
             }
         }
 
         function displayPages(pages) {
             const container = document.getElementById('pagesContainer');
-            const title = document.getElementById('sectionTitle');
             
-            if (!pages || pages.length === 0) {
-                container.innerHTML = `
-                    <div class="empty-state">
-                        No pages found. <a href="/write">Create the first one!</a>
-                    </div>
-                `;
+            if (!pages.length) {
+                container.innerHTML = 'No pages yet. <a href="/write">Create the first one!</a>';
                 return;
             }
 
             container.innerHTML = pages.map(page => `
                 <div class="page-item">
-                    <div class="page-title">
-                        <a href="/${page.slug}">${escapeHtml(page.title)}</a>
-                    </div>
-                    <div class="page-meta">
-                        <span class="page-slug">/${page.slug}</span>
-                        <span class="page-date">${new Date(page.created_at).toLocaleDateString()}</span>
-                    </div>
-                    <div class="page-preview">
-                        ${escapeHtml(page.content.length > 200 ? page.content.substring(0, 200) + '...' : page.content)}
-                    </div>
-                    <div class="page-actions">
-                        <a href="/${page.slug}" class="page-link">View Full Page</a>
-                        <a href="/write?slug=${page.slug}" class="page-link">Create Similar</a>
-                    </div>
+                    <div class="page-title"><a href="/${page.slug}">${page.title}</a></div>
+                    <div class="page-id">/${page.slug}</div>
+                    <div class="page-preview">${page.content.substring(0, 200)}...</div>
                 </div>
             `).join('');
-
-            if (currentSearch) {
-                title.textContent = `Search Results for "${currentSearch}" (${pages.length} pages)`;
-            } else {
-                title.textContent = `Recent Pages (${pages.length} total)`;
-            }
         }
 
-        function performSearch() {
-            const query = document.getElementById('searchInput').value.trim().toLowerCase();
-            currentSearch = query;
-            
-            if (!query) {
-                displayPages(allPages);
-                return;
-            }
-
-            const filteredPages = allPages.filter(page => 
-                page.title.toLowerCase().includes(query) ||
-                page.content.toLowerCase().includes(query) ||
-                page.slug.toLowerCase().includes(query)
-            );
-            
-            displayPages(filteredPages);
-        }
-
-        function clearSearch() {
-            document.getElementById('searchInput').value = '';
-            currentSearch = '';
-            displayPages(allPages);
-        }
-
-        function escapeHtml(unsafe) {
-            return unsafe
-                .replace(/&/g, "&amp;")
-                .replace(/</g, "&lt;")
-                .replace(/>/g, "&gt;")
-                .replace(/"/g, "&quot;")
-                .replace(/'/g, "&#039;");
-        }
-
-        // Handle Enter key in search
-        document.getElementById('searchInput').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                performSearch();
-            }
-        });
-
-        // Load pages on startup
         loadPages();
-
-        // Check for URL search parameter
-        const urlParams = new URLSearchParams(window.location.search);
-        const urlSearch = urlParams.get('q');
-        if (urlSearch) {
-            document.getElementById('searchInput').value = urlSearch;
-            currentSearch = urlSearch;
-            // Search will be handled by the loaded pages
-        }
     </script>
 </body>
 </html>
