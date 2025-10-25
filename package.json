@@ -4,8 +4,5 @@
   "type": "module",
   "dependencies": {
     "@vercel/postgres": "^0.8.0"
-  },
-  "scripts": {
-    "dev": "vercel dev"
   }
 }
