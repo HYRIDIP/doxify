@@ -1,5 +1,4 @@
-import { readdir } from 'fs/promises';
-import { join } from 'path';
+import { sql } from '@vercel/postgres';
 
 export default async function handler(req, res) {
   const { slug } = req.query;
@@ -9,12 +8,23 @@ export default async function handler(req, res) {
   }
 
   try {
-    const files = await readdir(join(process.cwd(), 'pages'));
-    const exists = files.includes(`${slug.toLowerCase()}.json`);
-    
-    res.json({ available: !exists });
+    // Auto-create table if not exists
+    await sql`
+      CREATE TABLE IF NOT EXISTS pages (
+        slug VARCHAR(50) PRIMARY KEY,
+        title TEXT NOT NULL,
+        content TEXT NOT NULL,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+      )
+    `;
+
+    const result = await sql`
+      SELECT slug FROM pages WHERE slug = ${slug.toLowerCase()}
+    `;
+
+    res.json({ available: result.rows.length === 0 });
   } catch (error) {
-    // If pages directory doesn't exist, slug is available
+    console.error('Error checking slug:', error);
     res.json({ available: true });
   }
 }
