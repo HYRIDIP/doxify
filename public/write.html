@@ -1,264 +1,23 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
+    <title>Create Page - Doxify</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create New Dox - Doxify</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: Arial, sans-serif;
-        }
-
-        body {
-            background-color: #000000;
-            color: #ffffff;
-            line-height: 1.6;
-            font-size: 14px;
-            padding: 20px;
-            min-height: 100vh;
-        }
-
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-        }
-
-        header {
-            border-bottom: 1px solid #333333;
-            padding: 10px 0;
-            margin-bottom: 20px;
-        }
-
-        .logo {
-            font-size: 24px;
-            font-weight: bold;
-            color: #ffffff;
-            text-decoration: none;
-        }
-
-        nav {
-            margin-top: 10px;
-        }
-
-        nav a {
-            color: #cccccc;
-            text-decoration: none;
-            margin-right: 15px;
-        }
-
-        nav a:hover {
-            color: #ffffff;
-        }
-
-        .form-container {
-            background: #111111;
-            border: 1px solid #333333;
-            padding: 30px;
-            margin: 20px 0;
-        }
-
-        .form-title {
-            font-size: 24px;
-            margin-bottom: 25px;
-            color: #ffffff;
-            border-bottom: 1px solid #333333;
-            padding-bottom: 10px;
-        }
-
-        .form-group {
-            margin-bottom: 25px;
-        }
-
-        .form-label {
-            display: block;
-            margin-bottom: 8px;
-            color: #cccccc;
-            font-size: 14px;
-            font-weight: bold;
-        }
-
-        .form-input, .form-textarea {
-            width: 100%;
-            padding: 12px 15px;
-            background: #000000;
-            border: 1px solid #333333;
-            color: #ffffff;
-            font-size: 14px;
-            transition: border-color 0.3s ease;
-        }
-
-        .form-input:focus, .form-textarea:focus {
-            outline: none;
-            border-color: #666666;
-        }
-
-        .form-textarea {
-            min-height: 400px;
-            resize: vertical;
-            line-height: 1.5;
-        }
-
-        .url-preview {
-            background: #000000;
-            border: 1px solid #333333;
-            padding: 15px;
-            margin: 20px 0;
-            font-family: monospace;
-            color: #00ff00;
-        }
-
-        .url-preview-label {
-            color: #888888;
-            font-size: 12px;
-            margin-bottom: 5px;
-        }
-
-        .url-preview-value {
-            font-size: 14px;
-            word-break: break-all;
-        }
-
-        .button-group {
-            display: flex;
-            gap: 15px;
-            margin: 25px 0;
-            flex-wrap: wrap;
-        }
-
-        .btn {
-            display: inline-block;
-            padding: 12px 30px;
-            background: #333333;
-            color: #ffffff;
-            text-decoration: none;
-            border: 1px solid #333333;
-            font-size: 14px;
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-
-        .btn:hover {
-            background: #444444;
-            border-color: #555555;
-        }
-
-        .btn-primary {
-            background: #222222;
-            border-color: #ffffff;
-        }
-
-        .btn-primary:hover {
-            background: #333333;
-        }
-
-        .btn:disabled {
-            background: #222222;
-            color: #666666;
-            border-color: #333333;
-            cursor: not-allowed;
-        }
-
-        .btn:disabled:hover {
-            background: #222222;
-            border-color: #333333;
-        }
-
-        .status-message {
-            padding: 15px;
-            margin: 15px 0;
-            border: 1px solid transparent;
-            font-size: 14px;
-            display: none;
-        }
-
-        .status-error {
-            background: #330000;
-            border-color: #660000;
-            color: #ff6666;
-        }
-
-        .status-success {
-            background: #003300;
-            border-color: #006600;
-            color: #66ff66;
-        }
-
-        .status-info {
-            background: #000033;
-            border-color: #000066;
-            color: #6666ff;
-        }
-
-        .form-hint {
-            color: #666666;
-            font-size: 12px;
-            margin-top: 5px;
-        }
-
-        .character-count {
-            text-align: right;
-            color: #666666;
-            font-size: 12px;
-            margin-top: 5px;
-        }
-
-        .slug-status {
-            margin-top: 8px;
-            font-size: 13px;
-            display: none;
-        }
-
-        .slug-error {
-            color: #ff6666;
-        }
-
-        .slug-success {
-            color: #66ff66;
-        }
-
-        footer {
-            margin-top: 50px;
-            padding-top: 20px;
-            border-top: 1px solid #333333;
-            color: #666666;
-            font-size: 12px;
-            text-align: center;
-        }
-
-        .debug-panel {
-            margin-top: 20px;
-            padding: 15px;
-            background: #222222;
-            border: 1px solid #333333;
-            font-size: 12px;
-        }
-
-        .debug-panel h4 {
-            margin-bottom: 10px;
-            color: #888888;
-        }
-
-        @media (max-width: 768px) {
-            .container {
-                padding: 0 10px;
-            }
-            
-            .form-container {
-                padding: 20px;
-            }
-            
-            .button-group {
-                flex-direction: column;
-            }
-            
-            .btn {
-                width: 100%;
-                text-align: center;
-            }
-        }
+        *{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif;}
+        body{background:#000;color:#fff;padding:20px;}
+        .container{max-width:800px;margin:0 auto;}
+        header{border-bottom:1px solid #333;padding:10px 0;margin-bottom:20px;}
+        .logo{font-size:24px;font-weight:bold;color:#fff;text-decoration:none;}
+        nav a{color:#ccc;text-decoration:none;margin-right:15px;}
+        .form-group{margin-bottom:15px;}
+        label{display:block;margin-bottom:5px;color:#ccc;}
+        input,textarea{width:100%;padding:8px;background:#111;border:1px solid #333;color:#fff;}
+        textarea{height:300px;resize:vertical;}
+        .btn{padding:8px 15px;background:#333;color:#fff;border:1px solid #333;cursor:pointer;}
+        .btn:disabled{background:#222;color:#666;cursor:not-allowed;}
+        .error{color:#f00;font-size:12px;margin-top:5px;}
+        .success{color:#0f0;font-size:12px;margin-top:5px;}
     </style>
 </head>
 <body>
@@ -267,391 +26,146 @@
             <a href="/" class="logo">DOXIFY</a>
             <nav>
                 <a href="/">Home</a>
-                <a href="/write">Write Dox</a>
-                <a href="/">Browse Pages</a>
+                <a href="/write">Write</a>
             </nav>
         </header>
 
-        <div class="form-container">
-            <h1 class="form-title">Create New Dox</h1>
-            
-            <form id="doxForm">
-                <div class="form-group">
-                    <label for="slug" class="form-label">Page URL Name</label>
-                    <input type="text" id="slug" name="slug" class="form-input" 
-                           required pattern="[a-zA-Z0-9-]{3,50}"
-                           placeholder="my-page-name" autocomplete="off">
-                    <div class="form-hint">
-                        Only letters, numbers, and hyphens allowed (3-50 characters). This will be part of your page URL.
-                    </div>
-                    <div id="slugStatus" class="slug-status"></div>
-                </div>
-                
-                <div class="form-group">
-                    <label for="title" class="form-label">Page Title</label>
-                    <input type="text" id="title" name="title" class="form-input" 
-                           required placeholder="Enter a descriptive title for your page" autocomplete="off">
-                    <div class="character-count">
-                        <span id="titleCount">0</span>/200 characters
-                    </div>
-                </div>
-                
-                <div class="form-group">
-                    <label for="content" class="form-label">Page Content</label>
-                    <textarea id="content" name="content" class="form-textarea" 
-                              required placeholder="Write your content here..."></textarea>
-                    <div class="character-count">
-                        <span id="contentCount">0</span> characters
-                    </div>
-                </div>
-                
-                <div class="url-preview">
-                    <div class="url-preview-label">Your page will be available at:</div>
-                    <div class="url-preview-value" id="urlPreview">https://doxify.vercel.app/your-page-name</div>
-                </div>
-                
-                <div id="formStatus" class="status-message"></div>
-                
-                <div class="button-group">
-                    <button type="submit" class="btn btn-primary" id="submitBtn" disabled>
-                        Create Page
-                    </button>
-                    <button type="button" class="btn" onclick="window.location.href='/'">
-                        Cancel
-                    </button>
-                    <button type="button" class="btn" onclick="clearForm()">
-                        Clear Form
-                    </button>
-                </div>
-            </form>
-
-            <!-- Debug Panel -->
-            <div class="debug-panel">
-                <h4>Debug Tools</h4>
-                <button type="button" class="btn" onclick="testCreateAPI()" style="padding: 8px 15px; font-size: 12px;">
-                    Test API Connection
-                </button>
-                <button type="button" class="btn" onclick="checkCurrentSlug()" style="padding: 8px 15px; font-size: 12px; margin-left: 10px;">
-                    Check Current Slug
-                </button>
+        <h2>Create Page</h2>
+        <form id="doxForm">
+            <div class="form-group">
+                <label>Page URL</label>
+                <input type="text" id="slug" placeholder="page-name" required>
+                <div id="slugStatus"></div>
             </div>
-        </div>
-
-        <footer>
-            Doxify - Anonymous Text Sharing Platform<br>
-            All pages are public and accessible via direct URLs
-        </footer>
+            <div class="form-group">
+                <label>Title</label>
+                <input type="text" id="title" required>
+            </div>
+            <div class="form-group">
+                <label>Content</label>
+                <textarea id="content" required></textarea>
+            </div>
+            <button type="submit" class="btn" id="submitBtn" disabled>Create Page</button>
+            <div id="formStatus" style="margin-top:15px;"></div>
+        </form>
     </div>
 
     <script>
-        // DOM elements
         const slugInput = document.getElementById('slug');
         const titleInput = document.getElementById('title');
         const contentInput = document.getElementById('content');
-        const urlPreview = document.getElementById('urlPreview');
         const slugStatus = document.getElementById('slugStatus');
         const formStatus = document.getElementById('formStatus');
         const submitBtn = document.getElementById('submitBtn');
-        const titleCount = document.getElementById('titleCount');
-        const contentCount = document.getElementById('contentCount');
         const form = document.getElementById('doxForm');
 
-        let slugCheckTimeout = null;
+        let slugCheckTimeout;
         let isSlugAvailable = false;
 
-        // Initialize when DOM is loaded
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('DOM loaded, initializing form...');
-            updateUrlPreview();
-            updateCharacterCounts();
-            updateSubmitButton();
-            
-            // Check for URL parameters
-            const urlParams = new URLSearchParams(window.location.search);
-            const suggestedSlug = urlParams.get('slug');
-            if (suggestedSlug) {
-                slugInput.value = suggestedSlug;
-                onSlugInput();
-            }
-        });
-
-        function updateUrlPreview() {
-            const slug = slugInput.value.trim().toLowerCase().replace(/[^a-z0-9-]/g, '-');
-            const host = window.location.host;
-            if (urlPreview) {
-                urlPreview.textContent = `https://${host}/${slug || 'your-page-name'}`;
-            }
-        }
-
         function validateSlug(slug) {
-            if (slug.length < 3) {
-                return { valid: false, message: 'URL name must be at least 3 characters' };
-            }
-            if (slug.length > 50) {
-                return { valid: false, message: 'URL name must be less than 50 characters' };
-            }
-            if (!/^[a-zA-Z0-9-]+$/.test(slug)) {
-                return { valid: false, message: 'Only letters, numbers, and hyphens allowed' };
-            }
-            if (/^-|-$/.test(slug)) {
-                return { valid: false, message: 'URL name cannot start or end with a hyphen' };
-            }
-            return { valid: true, message: '' };
+            return /^[a-zA-Z0-9-]{3,50}$/.test(slug);
         }
 
-        async function checkSlugAvailability(slug) {
+        async function checkSlug(slug) {
             try {
                 const response = await fetch(`/api/check-slug?slug=${encodeURIComponent(slug)}`);
-                if (!response.ok) {
-                    throw new Error('Network error');
-                }
                 const result = await response.json();
                 return result.available;
-            } catch (error) {
-                console.error('Error checking slug:', error);
+            } catch {
                 return false;
             }
         }
 
-        function updateSlugStatus(message, type) {
-            if (!slugStatus) return;
-            
-            slugStatus.textContent = message;
-            slugStatus.className = 'slug-status';
-            slugStatus.style.display = 'block';
-            
-            if (type === 'error') {
-                slugStatus.classList.add('slug-error');
-            } else if (type === 'success') {
-                slugStatus.classList.add('slug-success');
-            }
+        function showStatus(element, message, type) {
+            element.textContent = message;
+            element.className = type;
+            element.style.display = 'block';
         }
 
-        function hideSlugStatus() {
-            if (slugStatus) {
-                slugStatus.style.display = 'none';
-            }
+        function hideStatus(element) {
+            element.style.display = 'none';
         }
 
         async function onSlugInput() {
-            const slug = slugInput.value.trim().toLowerCase().replace(/[^a-z0-9-]/g, '-');
-            updateUrlPreview();
+            const slug = slugInput.value.trim().toLowerCase();
             
-            if (slugCheckTimeout) {
-                clearTimeout(slugCheckTimeout);
-            }
+            clearTimeout(slugCheckTimeout);
             
             if (slug.length === 0) {
-                hideSlugStatus();
+                hideStatus(slugStatus);
                 submitBtn.disabled = true;
-                isSlugAvailable = false;
                 return;
             }
             
-            const validation = validateSlug(slug);
-            if (!validation.valid) {
-                updateSlugStatus(validation.message, 'error');
+            if (!validateSlug(slug)) {
+                showStatus(slugStatus, 'Use letters, numbers, hyphens (3-50 chars)', 'error');
                 submitBtn.disabled = true;
-                isSlugAvailable = false;
                 return;
             }
             
-            updateSlugStatus('Checking availability...', 'info');
-            submitBtn.disabled = true;
+            showStatus(slugStatus, 'Checking...', 'success');
             
             slugCheckTimeout = setTimeout(async () => {
-                const available = await checkSlugAvailability(slug);
-                isSlugAvailable = available;
+                isSlugAvailable = await checkSlug(slug);
                 
-                if (available) {
-                    updateSlugStatus('✓ URL name is available!', 'success');
+                if (isSlugAvailable) {
+                    showStatus(slugStatus, 'Available', 'success');
                     updateSubmitButton();
                 } else {
-                    updateSlugStatus('✗ This URL name is already taken', 'error');
+                    showStatus(slugStatus, 'Already taken', 'error');
                     submitBtn.disabled = true;
                 }
             }, 500);
         }
 
-        function updateCharacterCounts() {
-            if (titleCount) titleCount.textContent = titleInput.value.length;
-            if (contentCount) contentCount.textContent = contentInput.value.length;
-        }
-
         function updateSubmitButton() {
-            const hasTitle = titleInput.value.trim().length > 0;
-            const hasContent = contentInput.value.trim().length > 0;
-            const titleValid = titleInput.value.length <= 200;
-            
-            if (submitBtn) {
-                submitBtn.disabled = !(isSlugAvailable && hasTitle && hasContent && titleValid);
-            }
+            const hasData = titleInput.value.trim() && contentInput.value.trim();
+            submitBtn.disabled = !(isSlugAvailable && hasData);
         }
 
-        function showFormStatus(message, type) {
-            if (!formStatus) return;
+        async function submitForm(e) {
+            e.preventDefault();
             
-            formStatus.textContent = message;
-            formStatus.className = 'status-message';
-            formStatus.style.display = 'block';
-            
-            if (type === 'error') {
-                formStatus.classList.add('status-error');
-            } else if (type === 'success') {
-                formStatus.classList.add('status-success');
-            } else if (type === 'info') {
-                formStatus.classList.add('status-info');
-            }
-        }
-
-        function hideFormStatus() {
-            if (formStatus) {
-                formStatus.style.display = 'none';
-            }
-        }
-
-        async function submitForm(event) {
-            event.preventDefault();
-            
-            const formData = new FormData(form);
             const data = {
-                slug: formData.get('slug').trim().toLowerCase().replace(/[^a-z0-9-]/g, '-'),
-                title: formData.get('title').trim(),
-                content: formData.get('content').trim()
+                slug: slugInput.value.trim().toLowerCase(),
+                title: titleInput.value.trim(),
+                content: contentInput.value.trim()
             };
 
-            // Final validation
-            const slugValidation = validateSlug(data.slug);
-            if (!slugValidation.valid) {
-                showFormStatus(slugValidation.message, 'error');
-                return;
-            }
-
-            if (data.title.length === 0) {
-                showFormStatus('Please enter a title', 'error');
-                return;
-            }
-
-            if (data.content.length === 0) {
-                showFormStatus('Please enter content', 'error');
-                return;
-            }
-
-            if (submitBtn) {
-                submitBtn.disabled = true;
-                submitBtn.textContent = 'Creating Page...';
-            }
-            hideFormStatus();
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Creating...';
+            hideStatus(formStatus);
 
             try {
-                console.log('Sending request to create page:', data);
-                
                 const response = await fetch('/api/create', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(data)
                 });
 
-                console.log('Response status:', response.status);
+                const result = await response.json();
                 
-                let result;
-                try {
-                    result = await response.json();
-                    console.log('Response data:', result);
-                } catch (jsonError) {
-                    console.error('JSON parse error:', jsonError);
-                    throw new Error('Invalid response from server');
-                }
-
-                if (response.ok && result.success) {
-                    showFormStatus('✓ Page created successfully! Redirecting...', 'success');
+                if (result.success) {
+                    showStatus(formStatus, 'Page created! Redirecting...', 'success');
                     setTimeout(() => {
                         window.location.href = `/${result.slug}`;
-                    }, 1500);
+                    }, 1000);
                 } else {
-                    const errorMessage = result.error || `Server error: ${response.status}`;
-                    showFormStatus('✗ ' + errorMessage, 'error');
-                    if (submitBtn) {
-                        submitBtn.disabled = false;
-                        submitBtn.textContent = 'Create Page';
-                    }
-                }
-            } catch (error) {
-                console.error('Network error:', error);
-                showFormStatus('✗ Network error: ' + error.message, 'error');
-                if (submitBtn) {
+                    showStatus(formStatus, result.error, 'error');
                     submitBtn.disabled = false;
                     submitBtn.textContent = 'Create Page';
                 }
-            }
-        }
-
-        function clearForm() {
-            form.reset();
-            hideSlugStatus();
-            hideFormStatus();
-            updateUrlPreview();
-            updateCharacterCounts();
-            updateSubmitButton();
-            slugInput.focus();
-        }
-
-        // Debug functions
-        async function testCreateAPI() {
-            const testData = {
-                slug: 'test-page-' + Date.now(),
-                title: 'Test Page',
-                content: 'This is a test page created via debug tool.'
-            };
-            
-            console.log('Testing API with:', testData);
-            
-            try {
-                const response = await fetch('/api/create', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(testData)
-                });
-                
-                const result = await response.json();
-                console.log('Test result:', result);
-                alert('Test result: ' + JSON.stringify(result, null, 2));
             } catch (error) {
-                console.error('Test failed:', error);
-                alert('Test failed: ' + error.message);
+                showStatus(formStatus, 'Network error', 'error');
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Create Page';
             }
         }
 
-        async function checkCurrentSlug() {
-            const slug = slugInput.value.trim();
-            if (!slug) {
-                alert('Please enter a slug first');
-                return;
-            }
-            
-            try {
-                const available = await checkSlugAvailability(slug);
-                alert(`Slug "${slug}" is ${available ? 'available' : 'taken'}`);
-            } catch (error) {
-                alert('Error checking slug: ' + error.message);
-            }
-        }
-
-        // Event listeners
-        if (slugInput) slugInput.addEventListener('input', onSlugInput);
-        if (titleInput) titleInput.addEventListener('input', () => {
-            updateCharacterCounts();
-            updateSubmitButton();
-        });
-        if (contentInput) contentInput.addEventListener('input', () => {
-            updateCharacterCounts();
-            updateSubmitButton();
-        });
-        if (form) form.addEventListener('submit', submitForm);
+        slugInput.addEventListener('input', onSlugInput);
+        titleInput.addEventListener('input', updateSubmitButton);
+        contentInput.addEventListener('input', updateSubmitButton);
+        form.addEventListener('submit', submitForm);
     </script>
 </body>
 </html>
