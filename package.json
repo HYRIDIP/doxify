@@ -2,9 +2,7 @@
   "name": "doxify",
   "version": "1.0.0",
   "type": "module",
-  "scripts": {
-    "dev": "vercel dev"
-  },
-  "dependencies": {},
-  "devDependencies": {}
+  "dependencies": {
+    "@vercel/kv": "^1.0.0"
+  }
 }
