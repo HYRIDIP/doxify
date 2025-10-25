@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Doxify</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
+        body { background: #000; color: #fff; line-height: 1.4; padding: 20px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        header { border-bottom: 1px solid #333; padding: 10px 0; margin-bottom: 20px; }
+        .logo { font-size: 24px; font-weight: bold; color: #fff; text-decoration: none; }
+        nav a { color: #ccc; text-decoration: none; margin-right: 15px; }
+        nav a:hover { color: #fff; }
+        .search-box { margin: 20px 0; }
+        .search-box input { width: 300px; padding: 8px; background: #111; border: 1px solid #333; color: #fff; }
+        .search-box button { padding: 8px 15px; background: #333; border: 1px solid #333; color: #fff; cursor: pointer; }
+        .btn { display: inline-block; padding: 8px 15px; background: #333; color: #fff; text-decoration: none; border: 1px solid #333; margin: 10px 0; }
+        .btn:hover { background: #444; }
+        .page-item { border: 1px solid #333; padding: 15px; margin-bottom: 10px; background: #111; }
+        .page-title { font-weight: bold; margin-bottom: 5px; }
+        .page-id { color: #888; font-size: 12px; margin-bottom: 8px; }
+        .page-preview { color: #ccc; margin-bottom: 10px; font-size: 13px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <a href="/" class="logo">DOXIFY</a>
+            <nav>
+                <a href="/">Home</a>
+                <a href="/write">Write Dox</a>
+            </nav>
+        </header>
+
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="Search posts...">
+            <button onclick="search()">Search</button>
+        </div>
+        
+        <a href="/write" class="btn">Write Dox</a>
+
+        <div id="pagesList" style="margin: 20px 0;">
+            <h3>Recent Pages</h3>
+            <div id="pagesContainer">Loading...</div>
+        </div>
+    </div>
+
+    <script>
+        async function loadPages() {
+            try {
+                const response = await fetch('/api/list');
+                const pages = await response.json();
+                displayPages(pages);
+            } catch (error) {
+                document.getElementById('pagesContainer').innerHTML = '<p>Error loading pages</p>';
+            }
+        }
+
+        function displayPages(pages) {
+            const container = document.getElementById('pagesContainer');
+            
+            if (!pages || pages.length === 0) {
+                container.innerHTML = '<p>No pages yet. <a href="/write">Create the first one!</a></p>';
+                return;
+            }
+
+            container.innerHTML = pages.map(page => `
+                <div class="page-item">
+                    <div class="page-title">
+                        <a href="/${page.slug}" style="color: #fff; text-decoration: none;">${page.title}</a>
+                    </div>
+                    <div class="page-id">/${page.slug}</div>
+                    <div class="page-preview">
+                        ${page.content.length > 200 ? page.content.substring(0, 200) + '...' : page.content}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function search() {
+            const query = document.getElementById('searchInput').value.trim();
+            if (query) {
+                // Simple client-side filtering
+                const items = document.querySelectorAll('.page-item');
+                items.forEach(item => {
+                    const text = item.textContent.toLowerCase();
+                    if (text.includes(query.toLowerCase())) {
+                        item.style.display = 'block';
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+                document.querySelector('h3').textContent = `Search results for: "${query}"`;
+            } else {
+                // Reset search
+                const items = document.querySelectorAll('.page-item');
+                items.forEach(item => item.style.display = 'block');
+                document.querySelector('h3').textContent = 'Recent Pages';
+            }
+        }
+
+        // Load pages on startup
+        loadPages();
+
+        // Handle Enter key in search
+        document.getElementById('searchInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                search();
+            }
+        });
+    </script>
+</body>
+</html>

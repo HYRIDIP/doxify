@@ -1,0 +1,40 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "public/**/*",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "api/**/*.js",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/create",
+      "dest": "/api/create.js",
+      "methods": ["POST"]
+    },
+    {
+      "src": "/api/list",
+      "dest": "/api/list.js"
+    },
+    {
+      "src": "/api/check-slug",
+      "dest": "/api/check-slug.js"
+    },
+    {
+      "src": "/([a-zA-Z0-9-]+)",
+      "dest": "/api/[slug].js"
+    },
+    {
+      "src": "/",
+      "dest": "/public/index.html"
+    },
+    {
+      "src": "/write",
+      "dest": "/public/write.html"
+    }
+  ]
+}
