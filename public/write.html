@@ -1,114 +1,459 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Write Dox - Doxify</title>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create New Dox - Doxify</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
-        body { background: #000; color: #fff; line-height: 1.4; padding: 20px; }
-        .container { max-width: 800px; margin: 0 auto; }
-        header { border-bottom: 1px solid #333; padding: 10px 0; margin-bottom: 20px; }
-        .logo { font-size: 24px; font-weight: bold; color: #fff; text-decoration: none; }
-        nav a { color: #ccc; text-decoration: none; margin-right: 15px; }
-        nav a:hover { color: #fff; }
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; margin-bottom: 5px; color: #ccc; }
-        .form-group input, .form-group textarea { width: 100%; padding: 8px; background: #111; border: 1px solid #333; color: #fff; }
-        .form-group textarea { height: 300px; resize: vertical; }
-        .btn { display: inline-block; padding: 8px 15px; background: #333; color: #fff; text-decoration: none; border: 1px solid #333; margin: 10px 0; cursor: pointer; }
-        .btn:hover { background: #444; }
-        .btn:disabled { background: #222; color: #666; cursor: not-allowed; }
-        .error { color: #f00; margin: 5px 0; }
-        .success { color: #0f0; margin: 5px 0; }
-        .url-preview { background: #111; padding: 10px; border: 1px solid #333; margin: 10px 0; font-family: monospace; color: #0f0; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Courier New', monospace;
+        }
+
+        body {
+            background-color: #000000;
+            color: #ffffff;
+            line-height: 1.6;
+            font-size: 14px;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        header {
+            border-bottom: 1px solid #333333;
+            padding: 20px 0;
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            font-size: 32px;
+            font-weight: bold;
+            color: #ffffff;
+            text-decoration: none;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        nav {
+            margin-top: 15px;
+        }
+
+        nav a {
+            color: #cccccc;
+            text-decoration: none;
+            margin-right: 25px;
+            font-size: 16px;
+            transition: color 0.3s ease;
+        }
+
+        nav a:hover {
+            color: #ffffff;
+        }
+
+        .form-container {
+            background: #111111;
+            border: 1px solid #333333;
+            padding: 30px;
+            margin: 20px 0;
+        }
+
+        .form-title {
+            font-size: 24px;
+            margin-bottom: 25px;
+            color: #ffffff;
+            border-bottom: 1px solid #333333;
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            color: #cccccc;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .form-input, .form-textarea {
+            width: 100%;
+            padding: 12px 15px;
+            background: #000000;
+            border: 1px solid #333333;
+            color: #ffffff;
+            font-size: 14px;
+            font-family: 'Courier New', monospace;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-input:focus, .form-textarea:focus {
+            outline: none;
+            border-color: #666666;
+        }
+
+        .form-textarea {
+            min-height: 400px;
+            resize: vertical;
+            line-height: 1.5;
+        }
+
+        .url-preview {
+            background: #000000;
+            border: 1px solid #333333;
+            padding: 15px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            color: #00ff00;
+        }
+
+        .url-preview-label {
+            color: #888888;
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+
+        .url-preview-value {
+            font-size: 14px;
+            word-break: break-all;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin: 25px 0;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 30px;
+            background: #333333;
+            color: #ffffff;
+            text-decoration: none;
+            border: 1px solid #333333;
+            font-size: 14px;
+            font-family: 'Courier New', monospace;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            background: #444444;
+            border-color: #555555;
+        }
+
+        .btn-primary {
+            background: #222222;
+            border-color: #ffffff;
+        }
+
+        .btn-primary:hover {
+            background: #333333;
+        }
+
+        .btn:disabled {
+            background: #222222;
+            color: #666666;
+            border-color: #333333;
+            cursor: not-allowed;
+        }
+
+        .btn:disabled:hover {
+            background: #222222;
+            border-color: #333333;
+        }
+
+        .status-message {
+            padding: 15px;
+            margin: 15px 0;
+            border: 1px solid transparent;
+            font-size: 14px;
+        }
+
+        .status-error {
+            background: #330000;
+            border-color: #660000;
+            color: #ff6666;
+        }
+
+        .status-success {
+            background: #003300;
+            border-color: #006600;
+            color: #66ff66;
+        }
+
+        .status-info {
+            background: #000033;
+            border-color: #000066;
+            color: #6666ff;
+        }
+
+        .form-hint {
+            color: #666666;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+
+        .character-count {
+            text-align: right;
+            color: #666666;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+
+        footer {
+            margin-top: 50px;
+            padding-top: 20px;
+            border-top: 1px solid #333333;
+            color: #666666;
+            font-size: 12px;
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 10px;
+            }
+            
+            .form-container {
+                padding: 20px;
+            }
+            
+            .button-group {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+                text-align: center;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <a href="/" class="logo">DOXIFY</a>
+            <a href="/" class="logo">Doxify</a>
             <nav>
                 <a href="/">Home</a>
                 <a href="/write">Write Dox</a>
+                <a href="/">Browse Pages</a>
             </nav>
         </header>
 
-        <h2>Create New Dox</h2>
-        
-        <form id="doxForm">
-            <div class="form-group">
-                <label for="slug">Page URL (your-site.vercel.app/your-page-name)</label>
-                <input type="text" id="slug" name="slug" required 
-                       pattern="[a-zA-Z0-9-]{3,50}" 
-                       title="Only letters, numbers and hyphens (3-50 characters)"
-                       placeholder="my-page-name">
-                <div id="slugError" class="error"></div>
-                <div id="slugSuccess" class="success"></div>
-            </div>
+        <div class="form-container">
+            <h1 class="form-title">Create New Dox</h1>
             
-            <div class="form-group">
-                <label for="title">Title</label>
-                <input type="text" id="title" name="title" required placeholder="Page title">
-            </div>
-            
-            <div class="form-group">
-                <label for="content">Content</label>
-                <textarea id="content" name="content" required placeholder="Page content"></textarea>
-            </div>
-            
-            <div class="url-preview">
-                URL: <span id="urlPreview">your-site.vercel.app/your-page-name</span>
-            </div>
-            
-            <button type="submit" class="btn" id="submitBtn" disabled>Create Page</button>
-        </form>
+            <form id="doxForm">
+                <div class="form-group">
+                    <label for="slug" class="form-label">Page URL Name</label>
+                    <input type="text" id="slug" name="slug" class="form-input" 
+                           required pattern="[a-zA-Z0-9-]{3,50}"
+                           placeholder="my-page-name" autocomplete="off">
+                    <div class="form-hint">
+                        Only letters, numbers, and hyphens allowed (3-50 characters). This will be part of your page URL.
+                    </div>
+                    <div id="slugStatus" class="status-message" style="display: none;"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="title" class="form-label">Page Title</label>
+                    <input type="text" id="title" name="title" class="form-input" 
+                           required placeholder="Enter a descriptive title for your page" autocomplete="off">
+                    <div class="character-count">
+                        <span id="titleCount">0</span>/200 characters
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="content" class="form-label">Page Content</label>
+                    <textarea id="content" name="content" class="form-textarea" 
+                              required placeholder="Write your content here... Markdown and basic HTML are supported."></textarea>
+                    <div class="character-count">
+                        <span id="contentCount">0</span> characters
+                    </div>
+                </div>
+                
+                <div class="url-preview">
+                    <div class="url-preview-label">Your page will be available at:</div>
+                    <div class="url-preview-value" id="urlPreview">https://doxify.vercel.app/your-page-name</div>
+                </div>
+                
+                <div id="formStatus" class="status-message" style="display: none;"></div>
+                
+                <div class="button-group">
+                    <button type="submit" class="btn btn-primary" id="submitBtn" disabled>
+                        Create Page
+                    </button>
+                    <button type="button" class="btn" onclick="window.location.href='/'">
+                        Cancel
+                    </button>
+                    <button type="button" class="btn" onclick="clearForm()">
+                        Clear Form
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <footer>
+            Doxify - Anonymous Text Sharing Platform<br>
+            All pages are public and accessible via direct URLs
+        </footer>
     </div>
 
     <script>
         const slugInput = document.getElementById('slug');
+        const titleInput = document.getElementById('title');
+        const contentInput = document.getElementById('content');
         const urlPreview = document.getElementById('urlPreview');
-        const slugError = document.getElementById('slugError');
-        const slugSuccess = document.getElementById('slugSuccess');
+        const slugStatus = document.getElementById('slugStatus');
+        const formStatus = document.getElementById('formStatus');
         const submitBtn = document.getElementById('submitBtn');
+        const titleCount = document.getElementById('titleCount');
+        const contentCount = document.getElementById('contentCount');
         const form = document.getElementById('doxForm');
 
-        function updateSlugPreview() {
+        let slugCheckTimeout = null;
+        let isSlugAvailable = false;
+
+        function updateUrlPreview() {
             const slug = slugInput.value.trim().toLowerCase().replace(/[^a-z0-9-]/g, '-');
             const host = window.location.host;
-            urlPreview.textContent = `${host}/${slug || 'your-page-name'}`;
-            
+            urlPreview.textContent = `https://${host}/${slug || 'your-page-name'}`;
+        }
+
+        function validateSlug(slug) {
             if (slug.length < 3) {
-                slugError.textContent = 'URL name must be at least 3 characters';
-                slugSuccess.textContent = '';
-                submitBtn.disabled = true;
-            } else if (!/^[a-zA-Z0-9-]{3,50}$/.test(slug)) {
-                slugError.textContent = 'Only letters, numbers and hyphens allowed';
-                slugSuccess.textContent = '';
-                submitBtn.disabled = true;
-            } else {
-                // Check if slug is available
-                checkSlugAvailability(slug);
+                return { valid: false, message: 'URL name must be at least 3 characters' };
             }
+            if (slug.length > 50) {
+                return { valid: false, message: 'URL name must be less than 50 characters' };
+            }
+            if (!/^[a-zA-Z0-9-]+$/.test(slug)) {
+                return { valid: false, message: 'Only letters, numbers, and hyphens allowed' };
+            }
+            if (/^-|-$/.test(slug)) {
+                return { valid: false, message: 'URL name cannot start or end with a hyphen' };
+            }
+            return { valid: true, message: '' };
         }
 
         async function checkSlugAvailability(slug) {
             try {
                 const response = await fetch(`/api/check-slug?slug=${encodeURIComponent(slug)}`);
+                if (!response.ok) {
+                    throw new Error('Network error');
+                }
                 const result = await response.json();
+                return result.available;
+            } catch (error) {
+                console.error('Error checking slug:', error);
+                return false;
+            }
+        }
+
+        function updateSlugStatus(message, type) {
+            slugStatus.textContent = message;
+            slugStatus.className = 'status-message';
+            slugStatus.style.display = 'block';
+            
+            if (type === 'error') {
+                slugStatus.classList.add('status-error');
+            } else if (type === 'success') {
+                slugStatus.classList.add('status-success');
+            } else if (type === 'info') {
+                slugStatus.classList.add('status-info');
+            }
+        }
+
+        function hideSlugStatus() {
+            slugStatus.style.display = 'none';
+        }
+
+        async function onSlugInput() {
+            const slug = slugInput.value.trim().toLowerCase().replace(/[^a-z0-9-]/g, '-');
+            updateUrlPreview();
+            
+            if (slugCheckTimeout) {
+                clearTimeout(slugCheckTimeout);
+            }
+            
+            if (slug.length === 0) {
+                hideSlugStatus();
+                submitBtn.disabled = true;
+                isSlugAvailable = false;
+                return;
+            }
+            
+            const validation = validateSlug(slug);
+            if (!validation.valid) {
+                updateSlugStatus(validation.message, 'error');
+                submitBtn.disabled = true;
+                isSlugAvailable = false;
+                return;
+            }
+            
+            updateSlugStatus('Checking availability...', 'info');
+            submitBtn.disabled = true;
+            
+            slugCheckTimeout = setTimeout(async () => {
+                const available = await checkSlugAvailability(slug);
+                isSlugAvailable = available;
                 
-                if (result.available) {
-                    slugError.textContent = '';
-                    slugSuccess.textContent = 'URL name is available!';
-                    submitBtn.disabled = false;
+                if (available) {
+                    updateSlugStatus('✓ URL name is available!', 'success');
+                    updateSubmitButton();
                 } else {
-                    slugError.textContent = 'This URL name is already taken';
-                    slugSuccess.textContent = '';
+                    updateSlugStatus('✗ This URL name is already taken', 'error');
                     submitBtn.disabled = true;
                 }
-            } catch (error) {
-                slugError.textContent = 'Error checking URL availability';
-                submitBtn.disabled = true;
+            }, 500);
+        }
+
+        function updateCharacterCounts() {
+            titleCount.textContent = titleInput.value.length;
+            contentCount.textContent = contentInput.value.length;
+        }
+
+        function updateSubmitButton() {
+            const hasTitle = titleInput.value.trim().length > 0;
+            const hasContent = contentInput.value.trim().length > 0;
+            const titleValid = titleInput.value.length <= 200;
+            
+            submitBtn.disabled = !(isSlugAvailable && hasTitle && hasContent && titleValid);
+            
+            if (!submitBtn.disabled) {
+                submitBtn.textContent = 'Create Page';
+            } else {
+                submitBtn.textContent = 'Create Page';
             }
+        }
+
+        function showFormStatus(message, type) {
+            formStatus.textContent = message;
+            formStatus.className = 'status-message';
+            formStatus.style.display = 'block';
+            
+            if (type === 'error') {
+                formStatus.classList.add('status-error');
+            } else if (type === 'success') {
+                formStatus.classList.add('status-success');
+            } else if (type === 'info') {
+                formStatus.classList.add('status-info');
+            }
+        }
+
+        function hideFormStatus() {
+            formStatus.style.display = 'none';
         }
 
         async function submitForm(event) {
@@ -116,13 +461,36 @@
             
             const formData = new FormData(form);
             const data = {
-                slug: formData.get('slug'),
-                title: formData.get('title'),
-                content: formData.get('content')
+                slug: formData.get('slug').trim().toLowerCase().replace(/[^a-z0-9-]/g, '-'),
+                title: formData.get('title').trim(),
+                content: formData.get('content').trim()
             };
 
+            // Final validation
+            const slugValidation = validateSlug(data.slug);
+            if (!slugValidation.valid) {
+                showFormStatus(slugValidation.message, 'error');
+                return;
+            }
+
+            if (data.title.length === 0) {
+                showFormStatus('Please enter a title', 'error');
+                return;
+            }
+
+            if (data.content.length === 0) {
+                showFormStatus('Please enter content', 'error');
+                return;
+            }
+
+            if (data.title.length > 200) {
+                showFormStatus('Title must be less than 200 characters', 'error');
+                return;
+            }
+
             submitBtn.disabled = true;
-            submitBtn.textContent = 'Creating...';
+            submitBtn.textContent = 'Creating Page...';
+            hideFormStatus();
 
             try {
                 const response = await fetch('/api/create', {
@@ -136,24 +504,56 @@
                 const result = await response.json();
                 
                 if (result.success) {
-                    window.location.href = `/${result.slug}`;
+                    showFormStatus('Page created successfully! Redirecting...', 'success');
+                    setTimeout(() => {
+                        window.location.href = `/${result.slug}`;
+                    }, 1000);
                 } else {
-                    slugError.textContent = result.error || 'Error creating page';
+                    showFormStatus(result.error || 'Error creating page', 'error');
                     submitBtn.disabled = false;
                     submitBtn.textContent = 'Create Page';
                 }
             } catch (error) {
-                slugError.textContent = 'Network error. Please try again.';
+                showFormStatus('Network error. Please try again.', 'error');
                 submitBtn.disabled = false;
                 submitBtn.textContent = 'Create Page';
             }
         }
 
-        slugInput.addEventListener('input', updateSlugPreview);
+        function clearForm() {
+            form.reset();
+            hideSlugStatus();
+            hideFormStatus();
+            updateUrlPreview();
+            updateCharacterCounts();
+            updateSubmitButton();
+            slugInput.focus();
+        }
+
+        // Event listeners
+        slugInput.addEventListener('input', onSlugInput);
+        titleInput.addEventListener('input', () => {
+            updateCharacterCounts();
+            updateSubmitButton();
+        });
+        contentInput.addEventListener('input', () => {
+            updateCharacterCounts();
+            updateSubmitButton();
+        });
         form.addEventListener('submit', submitForm);
-        
-        // Initial update
-        updateSlugPreview();
+
+        // Initialize
+        updateUrlPreview();
+        updateCharacterCounts();
+        updateSubmitButton();
+
+        // Check for URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const suggestedSlug = urlParams.get('slug');
+        if (suggestedSlug) {
+            slugInput.value = suggestedSlug;
+            onSlugInput();
+        }
     </script>
 </body>
 </html>
