@@ -1,11 +1,6 @@
 import { sql } from '@vercel/postgres';
 
 export default async function handler(req, res) {
-  console.log('=== CREATE API CALLED ===');
-  console.log('Method:', req.method);
-  console.log('Headers:', req.headers);
-  console.log('Body:', req.body);
-
   // Set CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -13,12 +8,10 @@ export default async function handler(req, res) {
 
   // Handle OPTIONS request for CORS
   if (req.method === 'OPTIONS') {
-    console.log('OPTIONS request handled');
-    return res.status(200).end();
+    return res.status(200).json({});
   }
 
   if (req.method !== 'POST') {
-    console.log('Method not allowed:', req.method);
     return res.status(405).json({ 
       success: false,
       error: 'Method not allowed' 
@@ -26,49 +19,44 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Parse JSON body
+    console.log('=== CREATE API CALLED ===');
+    
     let body;
     try {
-      body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
-      console.log('Parsed body:', body);
-    } catch (parseError) {
-      console.log('Body parse error:', parseError);
+      body = req.body;
+      console.log('Received body:', body);
+    } catch (error) {
+      console.log('Body parsing error:', error);
       return res.status(400).json({ 
         success: false,
-        error: 'Invalid JSON body' 
+        error: 'Invalid request body' 
       });
     }
 
     const { slug, title, content } = body;
 
-    console.log('Extracted data:', { slug, title, content });
-
-    // Validation
+    // Basic validation
     if (!slug || !title || !content) {
-      console.log('Missing fields:', { slug: !!slug, title: !!title, content: !!content });
       return res.status(400).json({ 
         success: false,
         error: 'All fields are required' 
       });
     }
 
-    const cleanSlug = slug.toLowerCase().trim();
-    console.log('Clean slug:', cleanSlug);
+    const cleanSlug = slug.toString().toLowerCase().trim();
 
     // Validate slug format
     if (!/^[a-zA-Z0-9-]{3,50}$/.test(cleanSlug)) {
-      console.log('Invalid slug format');
       return res.status(400).json({ 
         success: false,
-        error: 'Invalid page name format' 
+        error: 'Invalid page name format. Use only letters, numbers and hyphens (3-50 characters).' 
       });
     }
 
-    console.log('Connecting to database...');
+    console.log('Creating page:', { cleanSlug, title: title.substring(0, 50) });
 
     try {
-      // Auto-create table if not exists
-      console.log('Creating table if not exists...');
+      // Create table if not exists
       await sql`
         CREATE TABLE IF NOT EXISTS pages (
           slug VARCHAR(50) PRIMARY KEY,
@@ -77,33 +65,28 @@ export default async function handler(req, res) {
           created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
         )
       `;
-      console.log('Table check completed');
 
-      // Check if page already exists
-      console.log('Checking if page exists:', cleanSlug);
-      const existingResult = await sql`
+      // Check if page exists
+      const existing = await sql`
         SELECT slug FROM pages WHERE slug = ${cleanSlug}
       `;
       
-      if (existingResult.rows.length > 0) {
-        console.log('Page already exists');
+      if (existing.rows.length > 0) {
         return res.status(400).json({ 
           success: false,
           error: 'Page name already exists' 
         });
       }
 
-      // Save to database
-      console.log('Inserting new page...');
-      const insertResult = await sql`
+      // Insert new page
+      await sql`
         INSERT INTO pages (slug, title, content) 
-        VALUES (${cleanSlug}, ${title}, ${content})
-        RETURNING slug, title, created_at
+        VALUES (${cleanSlug}, ${title.toString()}, ${content.toString()})
       `;
-      
-      console.log('Page created successfully:', insertResult.rows[0]);
 
-      res.status(200).json({ 
+      console.log('Page created successfully:', cleanSlug);
+
+      return res.status(200).json({ 
         success: true, 
         slug: cleanSlug,
         url: `/${cleanSlug}`,
@@ -120,15 +103,18 @@ export default async function handler(req, res) {
         });
       }
       
-      throw dbError;
+      return res.status(500).json({ 
+        success: false,
+        error: 'Database error: ' + dbError.message 
+      });
     }
 
   } catch (error) {
     console.error('Unexpected error:', error);
     
-    res.status(500).json({ 
+    return res.status(500).json({ 
       success: false,
-      error: 'Internal server error: ' + error.message
+      error: 'Internal server error' 
     });
   }
 }
