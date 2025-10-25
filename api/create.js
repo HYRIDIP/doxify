@@ -1,5 +1,4 @@
-import { writeFile, readdir } from 'fs/promises';
-import { join } from 'path';
+import { sql } from '@vercel/postgres';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -19,30 +18,22 @@ export default async function handler(req, res) {
     }
 
     const cleanSlug = slug.toLowerCase();
-    
-    // Check if page already exists
-    try {
-      const files = await readdir(join(process.cwd(), 'pages'));
-      if (files.includes(`${cleanSlug}.json`)) {
-        return res.status(400).json({ error: 'Page name already exists' });
-      }
-    } catch (error) {
-      // Pages directory doesn't exist yet, which is fine
-    }
 
-    // Create page data
-    const pageData = {
-      slug: cleanSlug,
-      title: title,
-      content: content,
-      createdAt: new Date().toISOString()
-    };
+    // Auto-create table if not exists
+    await sql`
+      CREATE TABLE IF NOT EXISTS pages (
+        slug VARCHAR(50) PRIMARY KEY,
+        title TEXT NOT NULL,
+        content TEXT NOT NULL,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+      )
+    `;
 
-    // Save to file
-    await writeFile(
-      join(process.cwd(), 'pages', `${cleanSlug}.json`),
-      JSON.stringify(pageData, null, 2)
-    );
+    // Save to database
+    await sql`
+      INSERT INTO pages (slug, title, content) 
+      VALUES (${cleanSlug}, ${title}, ${content})
+    `;
 
     res.status(200).json({ 
       success: true, 
@@ -51,6 +42,9 @@ export default async function handler(req, res) {
     });
 
   } catch (error) {
+    if (error.code === '23505') { // Unique violation
+      return res.status(400).json({ error: 'Page name already exists' });
+    }
     console.error('Error creating page:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
