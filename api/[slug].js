@@ -1,5 +1,4 @@
-import { readFile } from 'fs/promises';
-import { join } from 'path';
+import { sql } from '@vercel/postgres';
 
 export default async function handler(req, res) {
   const { slug } = req.query;
@@ -10,12 +9,45 @@ export default async function handler(req, res) {
   }
 
   try {
-    const data = await readFile(
-      join(process.cwd(), 'pages', `${slug}.json`),
-      'utf8'
-    );
-    
-    const page = JSON.parse(data);
+    // Auto-create table if not exists
+    await sql`
+      CREATE TABLE IF NOT EXISTS pages (
+        slug VARCHAR(50) PRIMARY KEY,
+        title TEXT NOT NULL,
+        content TEXT NOT NULL,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+      )
+    `;
+
+    const result = await sql`
+      SELECT * FROM pages WHERE slug = ${slug.toLowerCase()}
+    `;
+
+    if (result.rows.length === 0) {
+      return res.status(404).send(`
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Page Not Found - Doxify</title>
+    <style>
+        body { background: #000; color: #fff; font-family: Arial; text-align: center; padding: 50px; }
+        a { color: #ccc; text-decoration: none; margin: 0 10px; }
+        a:hover { color: #fff; }
+    </style>
+</head>
+<body>
+    <h1>Page Not Found</h1>
+    <p>The page "${slug}" does not exist.</p>
+    <div style="margin: 20px 0;">
+        <a href="/">← Back to Home</a>
+        <a href="/write">Create this page</a>
+    </div>
+</body>
+</html>
+      `);
+    }
+
+    const page = result.rows[0];
 
     res.setHeader('Content-Type', 'text/html');
     res.send(`
@@ -50,7 +82,7 @@ export default async function handler(req, res) {
 
         <h1>${page.title}</h1>
         <div class="page-info">
-            /${page.slug} • Created: ${new Date(page.createdAt).toLocaleDateString()}
+            /${page.slug} • Created: ${new Date(page.created_at).toLocaleDateString()}
         </div>
         
         <div class="page-content">${page.content}</div>
@@ -62,24 +94,7 @@ export default async function handler(req, res) {
     `);
 
   } catch (error) {
-    res.status(404).send(`
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Page Not Found - Doxify</title>
-    <style>
-        body { background: #000; color: #fff; font-family: Arial; text-align: center; padding: 50px; }
-        a { color: #ccc; }
-    </style>
-</head>
-<body>
-    <h1>Page Not Found</h1>
-    <p>The page "${slug}" does not exist.</p>
-    <a href="/">← Back to Home</a>
-    <br><br>
-    <a href="/write">Create this page</a>
-</body>
-</html>
-    `);
+    console.error('Error loading page:', error);
+    res.status(500).send('Internal server error');
   }
 }
