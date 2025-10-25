@@ -21,20 +21,20 @@
       "dest": "/api/list.js"
     },
     {
-      "src": "/api/check-slug",
+      "src": "/api/check-slug", 
       "dest": "/api/check-slug.js"
     },
     {
-      "src": "/(?<slug>[a-zA-Z0-9-]+)",
-      "dest": "/api/[slug].js"
+      "src": "/write",
+      "dest": "/public/write.html"
     },
     {
       "src": "/",
       "dest": "/public/index.html"
     },
     {
-      "src": "/write", 
-      "dest": "/public/write.html"
+      "src": "/([a-zA-Z0-9-]{3,50})",
+      "dest": "/api/[slug].js"
     },
     {
       "src": "/(.*)",
