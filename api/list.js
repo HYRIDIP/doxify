@@ -45,13 +45,11 @@ export default async function handler(req, res) {
       created_at: page.created_at
     }));
 
-    res.setHeader('Cache-Control', 'public, max-age=60'); // Cache for 1 minute
+    res.setHeader('Cache-Control', 'public, max-age=60');
     res.json(pages);
 
   } catch (error) {
     console.error('Error listing pages:', error);
-    
-    // Return empty array instead of error for better UX
     res.json([]);
   }
 }
